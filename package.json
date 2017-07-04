@@ -4,7 +4,7 @@
   "description": "KOA adapter for swatchjs",
   "main": "index.js",
   "scripts": {
-    "test": "nyc mocha",
+    "test": "nyc mocha 'test/**/*.test.js'",
     "test:debug": "mocha --debug-brk"
   },
   "repository": {
