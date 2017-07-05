@@ -1,0 +1,37 @@
+{
+  "name": "swatchjs-koa",
+  "version": "0.1.0",
+  "description": "KOA adapter for swatchjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc mocha 'test/**/*.test.js'",
+    "test:debug": "mocha --debug-brk"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/builtforme/swatchjs-koa.git"
+  },
+  "keywords": [
+    "swatchjs",
+    "koa",
+    "methods",
+    "api",
+    "framework"
+  ],
+  "author": "Built For Me",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/builtforme/swatchjs-koa/issues"
+  },
+  "homepage": "https://github.com/builtforme/swatchjs-koa#readme",
+  "devDependencies": {
+    "swatchjs": "file:../swatchjs",
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.2",
+    "sinon": "^2.3.4"
+  },
+  "dependencies": {
+    "koa-router": "^7.2.1"
+  }
+}
