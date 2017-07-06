@@ -2,12 +2,12 @@
 
 An adapter to expose [swatchjs]() via [KOA](https://www.npmjs.com/package/koa).
 
-
 ## Quick start
 
 The following exposes the simple API from the `swatchjs`'s README file:
 
 ```javascript
+// Application server
 const swatch = require('swatchjs');
 const swatchKoa = require('swatchjs-koa');
 
@@ -25,7 +25,11 @@ Each API method you declared can now be invoked using any of the supported HTTP
 verbs.
 
 **Note**:<br/>
-It is strongly advised that you only enable your APIs over HTTPS.
+It is strongly advised that you only enable your APIs over HTTPS. Read more
+about [`HTTPS`](https://en.wikipedia.org/wiki/HTTPS#Overview) and why it's important
+and how to use HTTPS with your [`node`](https://nodejs.org/api/https.html) server.
+[`Here`](https://engineering.circle.com/https-authorized-certs-with-node-js-315e548354a2)
+is another recent tutorial that will also walk you through certificate setup.
 
 ## Verbs
 
@@ -37,6 +41,7 @@ For instance, using the popular [`request`](https://www.npmjs.com/package/reques
 package, you would invoke the `numbers.add` method above as follows:
 
 ```javascript
+// Client code (ex: Node server)
 var request = require('request');
 
 request('https://my-server/numbers.add?a=1&b=2');
@@ -56,6 +61,7 @@ KOA' request object.
 Below is an example of calling the API using an `XMLHttpRequest` object:
 
 ```javascript
+// Client code (ex: Browser JS)
 function post(url, body) {
     var request = new XMLHttpRequest();
 
@@ -79,23 +85,26 @@ var request = post(
 Be mindful that how the `body` property of KOA' request object gets
 populated depends on which body-parsing middleware you have enabled.
 
+There are popular libraries for KOA that enable the service to choose their
+behavior with regards to body parsing. A popular one is
+[`koa-bodyparser`](https://www.npmjs.com/package/koa-bodyparser).
+
 If you have a simple JSON body parser, then it will parse `application/json`
-content types, and your parameters could potentially have non-string types
-(it is still a good idea to verify).
+content types, and your parameters could potentially have non-string types.
 
 If, on the other hand, you have `application/x-www-form-urlencoded` parsing
 enabled, then all parameters will be strings, and the same considerations of the
 `GET` verb apply.
 
-There are popular libraries for KOA that enable the service to choose their
-behavior with regards to body parsing. A popular one is
-[`koa-bodyparser`](https://www.npmjs.com/package/koa-bodyparser).
+Security Notice: Remember that you may receive string objects using either approach,
+which you should validate and coerce before passing to your handler functions.
 
 ## API reference
 
 ### The `swatchKoa` function
 
 ```javascript
+// Application server
 const swatchKoa = require('swatch-koa');
 
 swatchKoa(app, model, options);
