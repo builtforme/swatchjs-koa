@@ -28,8 +28,8 @@ verbs.
 It is strongly advised that you only enable your APIs over HTTPS. Read more
 about [`HTTPS`](https://en.wikipedia.org/wiki/HTTPS#Overview) and why it's important
 and how to use HTTPS with your [`node`](https://nodejs.org/api/https.html) server.
-[`Here`](https://engineering.circle.com/https-authorized-certs-with-node-js-315e548354a2)
-is another recent tutorial that will also walk you through certificate setup.
+[`This tutorial`](https://engineering.circle.com/https-authorized-certs-with-node-js-315e548354a2)
+also provides a walkthrough of the entire process, including certificate setup and configuration.
 
 ## Verbs
 
