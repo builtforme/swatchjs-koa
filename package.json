@@ -1,6 +1,6 @@
 {
   "name": "swatchjs-koa",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "KOA adapter for swatchjs",
   "main": "index.js",
   "scripts": {
@@ -25,13 +25,13 @@
   },
   "homepage": "https://github.com/builtforme/swatchjs-koa#readme",
   "devDependencies": {
-    "swatchjs": "^0.1.0",
     "chai": "^4.0.2",
     "mocha": "^3.4.2",
     "nyc": "^11.0.2",
     "sinon": "^2.3.4"
   },
   "dependencies": {
+    "swatchjs": "^0.1.0",
     "koa-router": "^7.2.1"
   },
   "directories": {
