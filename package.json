@@ -1,5 +1,5 @@
 {
-  "name": "swatchjs-koa",
+  "name": "@builtforme/swatchjs-koa",
   "version": "0.1.2",
   "description": "KOA adapter for swatchjs",
   "main": "index.js",
