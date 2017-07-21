@@ -40,12 +40,17 @@ describe('handlers', () => {
 
 function invokeHandler(fn, verb, expected, done) {
   const params = {a: 1, b: 2};
+  const request = {
+    get body() {
+      return params;
+    },
+  };
   const ctx = {
     get query() {
       return params;
     },
-    get body() {
-      return params;
+    get request() {
+      return request;
     },
     set body(res) {
       expect(res).to.deep.equal(expected);
@@ -56,7 +61,8 @@ function invokeHandler(fn, verb, expected, done) {
   const model = swatch({
     fn: fn,
   });
-  const handler = handlers[verb](model[0]);
+  const swatchCtx = {};
+  const handler = handlers[verb](swatchCtx, model[0]);
 
   handler(ctx);
 }
