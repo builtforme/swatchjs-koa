@@ -24,6 +24,24 @@ describe('handlers', () => {
           invokeHandler(fn, verb, expected, done);
         });
 
+        it('should write a JSON success response if middleware and function succeeds', done => {
+          const fn = (a, b) => a + b;
+          const expected = {
+            ok: true,
+            result: 3,
+          };
+
+          let param = { key: true };
+          const middleware = [
+            (ctx, auth) => { param = auth; },
+          ]
+
+          invokeHandler(fn, verb, expected, done, middleware).then(() => {
+            // Middleware function should run and overwritten variable
+            expect(param).to.deep.equal({});
+          });
+        });
+
         it('should write a JSON error response if function fail', done => {
           const fn = (a, b) => { throw 'some_error'; };
           const expected = {
@@ -33,12 +51,25 @@ describe('handlers', () => {
 
           invokeHandler(fn, verb, expected, done);
         });
+
+        it('should write a JSON error if middleware rejects request', done => {
+          const fn = (a, b) => a + b;
+          const expected = {
+            ok: false,
+            error: 'middleware_error',
+          };
+          const middleware = [
+            (ctx, auth) => { throw 'middleware_error'; },
+          ]
+
+          invokeHandler(fn, verb, expected, done, middleware);
+        });
       });
     });
   });
 });
 
-function invokeHandler(fn, verb, expected, done) {
+function invokeHandler(fn, verb, expected, done, middleware) {
   const params = {a: 1, b: 2};
   const request = {
     get body() {
@@ -59,12 +90,15 @@ function invokeHandler(fn, verb, expected, done) {
   };
 
   const model = swatch({
-    fn: fn,
+    fn: {
+      handler: fn,
+      middleware: middleware,
+    },
   });
   const swatchCtx = {
     authAdapter: function() { return {}; },
   };
   const handler = handlers[verb](swatchCtx, model[0]);
 
-  handler(ctx);
+  return handler(ctx);
 }
