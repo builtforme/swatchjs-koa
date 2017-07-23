@@ -61,7 +61,9 @@ function invokeHandler(fn, verb, expected, done) {
   const model = swatch({
     fn: fn,
   });
-  const swatchCtx = {};
+  const swatchCtx = {
+    authAdapter: function() { return {}; },
+  };
   const handler = handlers[verb](swatchCtx, model[0]);
 
   handler(ctx);
