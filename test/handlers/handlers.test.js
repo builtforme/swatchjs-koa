@@ -33,7 +33,10 @@ describe('handlers', () => {
 
           let param = { key: true };
           const middleware = [
-            (ctx, auth) => { param = auth; },
+            (ctx, next) => {
+              param = ctx.swatchJs.auth;
+              next();
+            },
           ]
 
           invokeHandler(fn, verb, expected, done, middleware).then(() => {
@@ -59,7 +62,7 @@ describe('handlers', () => {
             error: 'middleware_error',
           };
           const middleware = [
-            (ctx, auth) => { throw 'middleware_error'; },
+            (ctx, next) => { throw 'middleware_error'; },
           ]
 
           invokeHandler(fn, verb, expected, done, middleware);
@@ -96,7 +99,9 @@ function invokeHandler(fn, verb, expected, done, middleware) {
     },
   });
   const swatchCtx = {
-    authAdapter: function() { return {}; },
+    authAdapter: function() {
+      return Promise.resolve({});
+    },
   };
   const handler = handlers[verb](swatchCtx, model[0]);
 
