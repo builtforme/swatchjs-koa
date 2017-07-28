@@ -26,6 +26,7 @@
   "homepage": "https://github.com/builtforme/swatchjs-koa#readme",
   "devDependencies": {
     "chai": "^4.0.2",
+    "chai-as-promised": "^7.1.1",
     "mocha": "^3.4.2",
     "nyc": "^11.0.2",
     "sinon": "^2.3.4"
