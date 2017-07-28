@@ -8,7 +8,9 @@ describe('defaults', () => {
   describe('options', () => {
     it('should include all default options', () => {
       const options = defaults();
-      expect(options).to.be.an('object').that.has.all.keys('verbs', 'prefix');
+      expect(options).to.be.an('object').that.has.all.keys(
+        'verbs', 'prefix', 'authAdapter'
+      );
     });
   });
 
@@ -53,4 +55,29 @@ describe('defaults', () => {
       expect(defaults({}).prefix).to.equal('/');
     });
   });
+
+  describe('authAdapter', () => {
+    it('should throw if authAdapter is passed, but is not a function', () => {
+      const options = {
+        authAdapter: 1,
+      };
+      expect(() => defaults(options)).to.throw();
+    });
+
+    it('should use the passed auth function', () => {
+      function authAdapter() {
+        return {
+          test: '100'
+        };
+      }
+      const options = {
+        authAdapter,
+      };
+      expect(defaults(options).authAdapter()).to.deep.equal({ test: '100' });
+    });
+
+    it('should use the default auth adapter if not specified', () => {
+      expect(defaults({}).authAdapter()).to.deep.equal({});
+    });
+  })
 });
