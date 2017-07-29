@@ -77,25 +77,21 @@ describe('defaults', () => {
       const setupCtx = {
         swatchCtx: {},
       };
-      defaults(options).authAdapter(setupCtx).then(() => {
+      defaults(options).authAdapter(setupCtx, () => {
         expect(setupCtx.swatchCtx.auth).to.deep.equal({ test: '100' });
         done();
-      }).catch((err) => {
-        done(new Error('Call to authAdapter should have succeeded'));
       });
     });
 
     it('should use the default auth adapter if not specified', (done) => {
       const emptyCtx = {};
-      defaults({}).authAdapter(emptyCtx).then(() => {
+      defaults({}).authAdapter(emptyCtx, () => {
         expect(emptyCtx.swatchCtx.auth).to.deep.equal({});
         done();
-      }).catch(() => {
-        done(new Error('Call to authAdapter should have succeeded'));
       });
     });
 
-    it('should handle an error in the async auth adapter', (done) => {
+    it('should handle an error in the async auth adapter', () => {
       function authAdapter() {
         throw 'auth_error';
       }
@@ -104,12 +100,10 @@ describe('defaults', () => {
       };
 
       const emptyCtx = {};
-      defaults(options).authAdapter(emptyCtx).then(() => {
-        done(new Error('Call to authAdapter should not have succeeded'));
-      }).catch(error => {
-        expect(error).to.equal('auth_error');
-        done();
-      });
+      defaults(options).authAdapter(emptyCtx);
+
+      expect(emptyCtx.body.ok).to.equal(false);
+      expect(emptyCtx.body.error).to.equal('auth_error');
     });
   })
 });
