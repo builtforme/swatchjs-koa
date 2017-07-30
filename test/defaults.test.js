@@ -64,7 +64,7 @@ describe('defaults', () => {
       expect(() => defaults(options)).to.throw();
     });
 
-    it('should use the passed auth function', () => {
+    it('should use the passed auth function ', (done) => {
       function authAdapter() {
         return {
           test: '100'
@@ -73,11 +73,37 @@ describe('defaults', () => {
       const options = {
         authAdapter,
       };
-      expect(defaults(options).authAdapter()).to.deep.equal({ test: '100' });
+
+      const setupCtx = {
+        swatchCtx: {},
+      };
+      defaults(options).authAdapter(setupCtx, () => {
+        expect(setupCtx.swatchCtx.auth).to.deep.equal({ test: '100' });
+        done();
+      });
     });
 
-    it('should use the default auth adapter if not specified', () => {
-      expect(defaults({}).authAdapter()).to.deep.equal({});
+    it('should use the default auth adapter if not specified', (done) => {
+      const emptyCtx = {};
+      defaults({}).authAdapter(emptyCtx, () => {
+        expect(emptyCtx.swatchCtx.auth).to.deep.equal({});
+        done();
+      });
+    });
+
+    it('should handle an error in the async auth adapter', () => {
+      function authAdapter() {
+        throw 'auth_error';
+      }
+      const options = {
+        authAdapter,
+      };
+
+      const emptyCtx = {};
+      defaults(options).authAdapter(emptyCtx);
+
+      expect(emptyCtx.body.ok).to.equal(false);
+      expect(emptyCtx.body.error).to.equal('auth_error');
     });
   })
 });
