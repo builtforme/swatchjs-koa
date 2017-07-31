@@ -87,7 +87,6 @@ describe('expose', () => {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-            next();
           }
         ]
       },
@@ -129,7 +128,6 @@ describe('expose', () => {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-            next();
           }
         ]
       },
@@ -202,7 +200,7 @@ describe('expose', () => {
         .end((err, res) => {
           expect(err).to.equal(null);
           expect(res.body.ok).to.equal(true);
-          expect(res.body.error).to.equal(100);
+          expect(res.body.result).to.equal(100);
           done();
         });
     });
@@ -248,7 +246,6 @@ describe('expose', () => {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-            next();
           }
         ]
       },
@@ -306,6 +303,68 @@ describe('expose', () => {
         expect(err).to.equal(null);
         expect(res.body.ok).to.equal(false);
         expect(res.body.error).to.equal('invalid_middleware_oops');
+        done();
+      });
+  });
+
+  it('should allow async middleware before running sync handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return 1000;
+        },
+        middleware: [
+          (ctx, next) => {
+            return Promise.resolve(2000).then(val => {
+              return next();
+            });
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(1000);
+        done();
+      });
+  });
+
+  it('should allow async middleware before running async handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return Promise.resolve(1000).then(val => {
+            return val * 2
+          });
+        },
+        middleware: [
+          (ctx, next) => {
+            return Promise.resolve(2000).then(val => {
+              return next();
+            });
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(2000);
         done();
       });
   });
