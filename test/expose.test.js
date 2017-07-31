@@ -72,7 +72,7 @@ describe('expose', () => {
     });
   });
 
-  it('should support an auth adapter with middleware', () => {
+  it('should support an auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
     const app = new koa();
@@ -87,7 +87,6 @@ describe('expose', () => {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-            next();
           }
         ]
       },
@@ -114,7 +113,7 @@ describe('expose', () => {
       });
   });
 
-  it('should support an async auth adapter with middleware', () => {
+  it('should support an async auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
     const app = new koa();
@@ -129,7 +128,6 @@ describe('expose', () => {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-            next();
           }
         ]
       },
@@ -156,7 +154,84 @@ describe('expose', () => {
       });
   });
 
-  it('should return an error when auth adapter throws an error', () => {
+  it('should return an error when handler throws an error', (done) => {
+    // Define a sync handler that throws an exception
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          throw 'sync_whoops';
+        },
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(false);
+        expect(res.body.error).to.equal('sync_whoops');
+        done();
+      });
+    });
+
+    it('should return success from an async handler', (done) => {
+      const app = new koa();
+      const model = swatch({
+        "add": {
+          handler: () => {
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(100);
+              }, 500);
+            });
+          }
+        },
+      });
+
+      expose(app, model);
+
+      request(http.createServer(app.callback()))
+        .get('/add')
+        .expect(200)
+        .end((err, res) => {
+          expect(err).to.equal(null);
+          expect(res.body.ok).to.equal(true);
+          expect(res.body.result).to.equal(100);
+          done();
+        });
+    });
+
+  it('should return an error when handler throws an error inside a promise', (done) => {
+    // Define an async function that throws a exception from inside a promise
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return Promise.resolve('async_whoops').then(msg => {
+            throw msg;
+          });
+        },
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(false);
+        expect(res.body.error).to.equal('async_whoops');
+        done();
+      });
+    });
+
+  it('should return an error when auth adapter throws an error', (done) => {
     // Define an authAdapter that throws an exception
     //  Define one middleware fn that should not run
     const app = new koa();
@@ -171,7 +246,6 @@ describe('expose', () => {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-            next();
           }
         ]
       },
@@ -195,7 +269,7 @@ describe('expose', () => {
       });
     });
 
-  it('should return an error when any middleware throws an error', () => {
+  it('should return an error when any middleware throws an error', (done) => {
     // Define an authAdapter that works correctly
     //  Define one middleware fn that throws an error
     const app = new koa();
@@ -229,6 +303,68 @@ describe('expose', () => {
         expect(err).to.equal(null);
         expect(res.body.ok).to.equal(false);
         expect(res.body.error).to.equal('invalid_middleware_oops');
+        done();
+      });
+  });
+
+  it('should allow async middleware before running sync handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return 1000;
+        },
+        middleware: [
+          (ctx, next) => {
+            return Promise.resolve(2000).then(val => {
+              next();
+            });
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(1000);
+        done();
+      });
+  });
+
+  it('should allow async middleware before running async handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return Promise.resolve(1000).then(val => {
+            return val * 2
+          });
+        },
+        middleware: [
+          (ctx, next) => {
+            return Promise.resolve(3000).then(val => {
+              next();
+            });
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(2000);
         done();
       });
   });
