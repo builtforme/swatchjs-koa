@@ -317,7 +317,7 @@ describe('expose', () => {
         middleware: [
           (ctx, next) => {
             return Promise.resolve(2000).then(val => {
-              return next();
+              next();
             });
           }
         ]
@@ -348,8 +348,8 @@ describe('expose', () => {
         },
         middleware: [
           (ctx, next) => {
-            return Promise.resolve(2000).then(val => {
-              return next();
+            return Promise.resolve(3000).then(val => {
+              next();
             });
           }
         ]

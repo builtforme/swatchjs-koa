@@ -100,10 +100,10 @@ describe('defaults', () => {
       };
 
       const emptyCtx = {};
-      defaults(options).authAdapter(emptyCtx);
-
-      expect(emptyCtx.body.ok).to.equal(false);
-      expect(emptyCtx.body.error).to.equal('auth_error');
+      defaults(options).authAdapter(emptyCtx).then(() => {
+        expect(emptyCtx.body.ok).to.equal(false);
+        expect(emptyCtx.body.error).to.equal('auth_error');
+      });
     });
   })
 });
