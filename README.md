@@ -1,5 +1,7 @@
 # swatchjs-koa
 
+[![CircleCI](https://circleci.com/gh/builtforme/swatchjs-koa.svg?style=svg)](https://circleci.com/gh/builtforme/swatchjs-koa) | [![Known Vulnerabilities](https://snyk.io/test/github/builtforme/swatchjs-koa/badge.svg)](https://snyk.io/test/github/builtforme/swatchjs-koa)
+
 An adapter to expose [swatchjs]() via [KOA](https://www.npmjs.com/package/koa).
 
 ## Quick start
