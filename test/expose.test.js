@@ -113,6 +113,47 @@ describe('expose', () => {
       });
   });
 
+  it('should skip auth adapter based on noAuth flag', (done) => {
+    // Define an authAdapter that returns a simple auth object
+    //  Configure the method to skip auth step and allow handler
+    //  Define one middleware fn that checks if auth handler ran
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return 10;
+        },
+        noAuth: true,
+        middleware: [
+          (ctx, next) => {
+            ctx.body = {
+              exists: Boolean(ctx.swatchCtx.auth),
+            };
+          }
+        ]
+      },
+    });
+    const options = {
+      authAdapter: (ctx) => {
+        return {
+          id: 12345,
+          auth: true,
+        };
+      },
+    };
+
+    expose(app, model, options);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.exists).to.equal(false);
+        done();
+      });
+  });
+
   it('should support an async auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
