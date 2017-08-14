@@ -141,6 +141,9 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+
+      - run: npm install
+
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
