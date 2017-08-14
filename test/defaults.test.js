@@ -84,9 +84,11 @@ describe('defaults', () => {
     });
 
     it('should use the default auth adapter if not specified', (done) => {
-      const emptyCtx = {};
-      defaults({}).authAdapter(emptyCtx, () => {
-        expect(emptyCtx.swatchCtx.auth).to.deep.equal({});
+      const setupCtx = {
+        swatchCtx: {},
+      };
+      defaults({}).authAdapter(setupCtx, () => {
+        expect(setupCtx.swatchCtx.auth).to.deep.equal({});
         done();
       });
     });

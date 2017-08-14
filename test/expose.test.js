@@ -174,8 +174,8 @@ describe('expose', () => {
       },
     });
     const options = {
-      authAdapter: (ctx) => {
-        return Promise.resolve({
+      authAdapter: async (ctx) => {
+        return await Promise.resolve({
           id: 12345,
           auth: true,
         });
@@ -223,11 +223,11 @@ describe('expose', () => {
       const app = new koa();
       const model = swatch({
         "add": {
-          handler: () => {
-            return new Promise((resolve) => {
+          handler: async () => {
+            return await new Promise((resolve) => {
               setTimeout(() => {
                 resolve(100);
-              }, 500);
+              }, 150);
             });
           }
         },
@@ -251,8 +251,8 @@ describe('expose', () => {
     const app = new koa();
     const model = swatch({
       "add": {
-        handler: () => {
-          return Promise.resolve('async_whoops').then(msg => {
+        handler: async () => {
+          return await Promise.resolve('async_whoops').then(msg => {
             throw msg;
           });
         },
@@ -348,6 +348,70 @@ describe('expose', () => {
       });
   });
 
+  it('should allow sync middleware before running sync handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return 500;
+        },
+        middleware: [
+          (ctx, next) => {
+            ctx.swatchCtx.value = 2000;
+            next();
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(500);
+        done();
+      });
+  });
+
+  it('should allow sync middleware before running async handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: async () => {
+          return await new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(250);
+            }, 100);
+          }).then(val => {
+            return val * 5
+          });
+        },
+        middleware: [
+          async (ctx, next) => {
+            ctx.swatchCtx.value = 3000;
+            await next();
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(1250);
+        done();
+      });
+  });
+
   it('should allow async middleware before running sync handler', (done) => {
     const app = new koa();
     const model = swatch({
@@ -356,10 +420,11 @@ describe('expose', () => {
           return 1000;
         },
         middleware: [
-          (ctx, next) => {
-            return Promise.resolve(2000).then(val => {
-              next();
-            });
+          async (ctx, next) => {
+            const result = await Promise.resolve(2000);
+            ctx.swatchCtx.value = result;
+
+            await next();
           }
         ]
       },
@@ -382,16 +447,21 @@ describe('expose', () => {
     const app = new koa();
     const model = swatch({
       "add": {
-        handler: () => {
-          return Promise.resolve(1000).then(val => {
+        handler: async () => {
+          return await new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(1000);
+            }, 100);
+          }).then(val => {
             return val * 2
           });
         },
         middleware: [
-          (ctx, next) => {
-            return Promise.resolve(3000).then(val => {
-              next();
-            });
+          async (ctx, next) => {
+            const result = await Promise.resolve(3000);
+            ctx.swatchCtx.value = result;
+
+            await next();
           }
         ]
       },
