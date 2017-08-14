@@ -7,8 +7,7 @@
       "text"
     ],
     "include": [
-      "dist/index.js",
-      "dist/lib/**"
+      "lib/**"
     ],
     "all": true,
     "statements": 100,
