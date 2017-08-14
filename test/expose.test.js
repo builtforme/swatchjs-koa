@@ -174,8 +174,8 @@ describe('expose', () => {
       },
     });
     const options = {
-      authAdapter: (ctx) => {
-        return Promise.resolve({
+      authAdapter: async (ctx) => {
+        return await Promise.resolve({
           id: 12345,
           auth: true,
         });
@@ -223,8 +223,8 @@ describe('expose', () => {
       const app = new koa();
       const model = swatch({
         "add": {
-          handler: () => {
-            return new Promise((resolve) => {
+          handler: async () => {
+            return await new Promise((resolve) => {
               setTimeout(() => {
                 resolve(100);
               }, 150);
@@ -251,8 +251,8 @@ describe('expose', () => {
     const app = new koa();
     const model = swatch({
       "add": {
-        handler: () => {
-          return Promise.resolve('async_whoops').then(msg => {
+        handler: async () => {
+          return await Promise.resolve('async_whoops').then(msg => {
             throw msg;
           });
         },
@@ -381,8 +381,8 @@ describe('expose', () => {
     const app = new koa();
     const model = swatch({
       "add": {
-        handler: () => {
-          return new Promise((resolve) => {
+        handler: async () => {
+          return await new Promise((resolve) => {
             setTimeout(() => {
               resolve(250);
             }, 100);
@@ -391,9 +391,9 @@ describe('expose', () => {
           });
         },
         middleware: [
-          (ctx, next) => {
+          async (ctx, next) => {
             ctx.swatchCtx.value = 3000;
-            next();
+            await next();
           }
         ]
       },
@@ -420,10 +420,11 @@ describe('expose', () => {
           return 1000;
         },
         middleware: [
-          (ctx, next) => {
-            return Promise.resolve(2000).then(val => {
-              next();
-            });
+          async (ctx, next) => {
+            const result = await Promise.resolve(2000);
+            ctx.swatchCtx.value = result;
+
+            await next();
           }
         ]
       },
@@ -446,8 +447,8 @@ describe('expose', () => {
     const app = new koa();
     const model = swatch({
       "add": {
-        handler: () => {
-          return new Promise((resolve) => {
+        handler: async () => {
+          return await new Promise((resolve) => {
             setTimeout(() => {
               resolve(1000);
             }, 100);
@@ -456,10 +457,11 @@ describe('expose', () => {
           });
         },
         middleware: [
-          (ctx, next) => {
-            return Promise.resolve(3000).then(val => {
-              next();
-            });
+          async (ctx, next) => {
+            const result = await Promise.resolve(3000);
+            ctx.swatchCtx.value = result;
+
+            await next();
           }
         ]
       },
