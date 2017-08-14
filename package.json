@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "test": "nyc mocha --opts test/unit/mocha.opts 'test/**/*.test.js'",
+    "test": "nyc mocha --opts test/unit/mocha.opts 'dist/test/**/*.test.js'",
     "coveralls": "nyc report --reporter=text-lcov | ./node_modules/coveralls/bin/coveralls.js",
     "codecov": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "test:debug": "mocha --debug-brk",
