@@ -149,7 +149,6 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               if [ -z "${CIRCLE_TAG}" ]; then
                 echo "Hello"
-                cat ~/.npmrc
                 echo "Set token"
                 echo "//registry.npmjs.org/:_authToken=$DUMMY_NPM_TOKEN" >> ~/.npmrc
                 echo "Read token"
