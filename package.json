@@ -1,6 +1,6 @@
 {
   "name": "swatchjs-koa",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "KOA adapter for swatchjs",
   "main": "index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
-    "swatchjs": "^0.1.4",
+    "swatchjs": "^0.1.36",
     "koa-router": "^7.0.0"
   },
   "directories": {
