@@ -227,7 +227,7 @@ describe('expose', () => {
             return new Promise((resolve) => {
               setTimeout(() => {
                 resolve(100);
-              }, 500);
+              }, 150);
             });
           }
         },
@@ -348,6 +348,70 @@ describe('expose', () => {
       });
   });
 
+  it('should allow sync middleware before running sync handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return 500;
+        },
+        middleware: [
+          (ctx, next) => {
+            ctx.swatchCtx.value = 2000;
+            next();
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(500);
+        done();
+      });
+  });
+
+  it('should allow sync middleware before running async handler', (done) => {
+    const app = new koa();
+    const model = swatch({
+      "add": {
+        handler: () => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(250);
+            }, 100);
+          }).then(val => {
+            return val * 5
+          });
+        },
+        middleware: [
+          (ctx, next) => {
+            ctx.swatchCtx.value = 3000;
+            next();
+          }
+        ]
+      },
+    });
+
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(1250);
+        done();
+      });
+  });
+
   it('should allow async middleware before running sync handler', (done) => {
     const app = new koa();
     const model = swatch({
@@ -383,7 +447,11 @@ describe('expose', () => {
     const model = swatch({
       "add": {
         handler: () => {
-          return Promise.resolve(1000).then(val => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(1000);
+            }, 100);
+          }).then(val => {
             return val * 2
           });
         },
