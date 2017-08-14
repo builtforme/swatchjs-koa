@@ -1,2 +1,10 @@
+.git
+.nyc_output
+
 index.js
 lib
+test
+
+coverage
+
+node_modules
