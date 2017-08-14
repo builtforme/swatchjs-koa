@@ -1,6 +1,6 @@
 {
   "name": "swatchjs-koa",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "KOA adapter for swatchjs",
   "main": "dist/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "coveralls": "nyc report --reporter=text-lcov | ./node_modules/coveralls/bin/coveralls.js",
     "codecov": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "test:debug": "mocha --debug-brk",
-    "build": "babel . -d dist --ignore dist,node_modules",
+    "build": "babel . -d dist --ignore coverage,dist,node_modules",
     "clean": "rm -rf dist/"
   },
   "repository": {
@@ -54,5 +54,9 @@
     "babel-runtime": "^6.25.0",
     "koa-router": "^7.2.1",
     "swatchjs": "^0.1.36"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   }
 }
