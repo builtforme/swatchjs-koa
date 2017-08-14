@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:6
+      - image: circleci/node:7.10
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -34,10 +34,10 @@ jobs:
       # run tests!
       - run: npm test
 
-  codecov_report_code_coverage:
+  report_code_coverage_codecov:
     docker:
       # specify the version you desire here
-      - image: circleci/node:6
+      - image: circleci/node:7.10
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -66,10 +66,10 @@ jobs:
       # run tests!
       - run: npm test && npm run-script codecov
 
-  coveralls_report_code_coverage:
+  report_code_coverage_coveralls:
     docker:
       # specify the version you desire here
-      - image: circleci/node:6
+      - image: circleci/node:7.10
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -101,7 +101,7 @@ jobs:
   version:
     docker:
       # specify the version you desire here
-      - image: circleci/node:6
+      - image: circleci/node:7.10
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -131,7 +131,7 @@ jobs:
   publish:
     docker:
       # specify the version you desire here
-      - image: circleci/node:6
+      - image: circleci/node:7.10
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -141,19 +141,12 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-
       - run: npm install
-
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               if [ -z "${CIRCLE_TAG}" ]; then
-                echo "Hello"
-                echo "Set token"
-                echo "//registry.npmjs.org/:_authToken=$DUMMY_NPM_TOKEN" >> ~/.npmrc
-                echo "Read token"
-                cat ~/.npmrc
-                echo "Publish"
+                echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
                 npm publish --access public
               else
                 echo "Not publishing because circle tag is ${CIRCLE_TAG}"
@@ -167,10 +160,10 @@ workflows:
   build_tag_publish:
     jobs:
         - build
-        - coveralls_report_code_coverage:
+        - report_code_coverage_coveralls:
             requires:
               - build
-        - codecov_report_code_coverage:
+        - report_code_coverage_codecov:
             requires:
               - build
         - publish:
