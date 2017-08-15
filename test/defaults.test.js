@@ -1,5 +1,3 @@
-'use strict';
-
 const expect = require('chai').expect;
 const defaults = require('../lib/defaults');
 const handlers = require('../lib/handlers');
@@ -9,7 +7,7 @@ describe('defaults', () => {
     it('should include all default options', () => {
       const options = defaults();
       expect(options).to.be.an('object').that.has.all.keys(
-        'verbs', 'prefix', 'authAdapter'
+        'verbs', 'prefix', 'authAdapter',
       );
     });
   });
@@ -67,7 +65,7 @@ describe('defaults', () => {
     it('should use the passed auth function ', (done) => {
       function authAdapter() {
         return {
-          test: '100'
+          test: '100',
         };
       }
       const options = {
@@ -95,7 +93,7 @@ describe('defaults', () => {
 
     it('should handle an error in the async auth adapter', () => {
       function authAdapter() {
-        throw 'auth_error';
+        throw new Error('auth_error');
       }
       const options = {
         authAdapter,
@@ -107,5 +105,5 @@ describe('defaults', () => {
         expect(emptyCtx.body.error).to.equal('auth_error');
       });
     });
-  })
+  });
 });

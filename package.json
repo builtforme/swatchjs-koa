@@ -1,11 +1,12 @@
 {
   "name": "swatchjs-koa",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "KOA adapter for swatchjs",
   "main": "dist/index.js",
   "scripts": {
     "test": "nyc mocha --opts test/unit/mocha.opts 'test/**/*.test.js'",
     "test:debug": "mocha --debug-brk",
+    "lint": "./node_modules/.bin/eslint --ext .js index.js lib/*.js test/*.js",
     "build": "babel . -d dist --ignore coverage,dist,node_modules",
     "clean": "rm -rf dist/",
     "coveralls": "nyc report --reporter=text-lcov | ./node_modules/coveralls/bin/coveralls.js",
@@ -30,6 +31,7 @@
   "homepage": "https://github.com/builtforme/swatchjs-koa#readme",
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
     "babel-plugin-transform-regenerator": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
@@ -42,8 +44,12 @@
     "chai-as-promised": "^7.1.1",
     "codecov": "^2.3.0",
     "coveralls": "^2.13.1",
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-babel": "^4.1.2",
+    "eslint-plugin-import": "^2.7.0",
     "koa": "^2.3.0",
     "mocha": "^3.5.0",
+    "mocha-eslint": "^4.1.0",
     "nyc": "^11.1.0",
     "sinon": "^3.2.0",
     "supertest": "^3.0.0"

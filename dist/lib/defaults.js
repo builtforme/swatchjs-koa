@@ -19,25 +19,19 @@ var response = require('./response');
 
 var SUPPORTED_VERBS = (0, _keys2.default)(handlers);
 
-function defaults(options) {
-  return {
-    verbs: defaultVerbs(options && options.verbs),
-    prefix: defaultPrefix(options && options.prefix),
-    authAdapter: defaultAuthAdapter(options && options.authAdapter)
-  };
-}
-
 function defaultVerbs(requested) {
   if (requested && !(requested instanceof Array)) {
     throw TypeError('requested HTTP verbs must be an array');
   }
 
   // requested verbs must be supported
-  requested && requested.forEach(function (verb) {
-    if (!(verb in handlers)) {
-      throw 'requested verb \'' + verb + '\' is not supported';
-    }
-  });
+  if (requested) {
+    requested.forEach(function (verb) {
+      if (!(verb in handlers)) {
+        throw new Error('requested verb \'' + verb + '\' is not supported');
+      }
+    });
+  }
 
   return requested || SUPPORTED_VERBS;
 }
@@ -94,15 +88,21 @@ function defaultAuthAdapter(authAdapter) {
     throw TypeError('function required for authAdapter');
   }
 
-  var authAdapterFn = authAdapter || noopAuthAdapter;
-
-  return authMiddleware;
-
   function noopAuthAdapter() {
     return {};
   }
 
-  ;
+  var authAdapterFn = authAdapter || noopAuthAdapter;
+
+  return authMiddleware;
+}
+
+function defaults(options) {
+  return {
+    verbs: defaultVerbs(options && options.verbs),
+    prefix: defaultPrefix(options && options.prefix),
+    authAdapter: defaultAuthAdapter(options && options.authAdapter)
+  };
 }
 
 module.exports = defaults;
