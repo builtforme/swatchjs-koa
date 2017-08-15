@@ -1,10 +1,9 @@
-'use strict';
-
-const koa = require('koa');
 const chai = require('chai');
 const http = require('http');
 const swatch = require('swatchjs');
 const request = require('supertest');
+
+const Koa = require('koa');
 
 const expose = require('../lib/expose');
 const handlers = require('../lib/handlers');
@@ -13,48 +12,48 @@ const expect = chai.expect;
 
 function getModel() {
   const model = swatch({
-    "add": {
+    add: {
       handler: (a, b) => a + b,
     },
-    "sub": {
+    sub: {
       handler: (a, b) => a - b,
     },
   });
 
   return model;
-};
+}
 
 describe('expose', () => {
   it('should only register the requested verbs', () => {
-    const app = new koa();
+    const app = new Koa();
     const model = getModel();
     const options = {
-      verbs: [ 'get' ],
+      verbs: ['get'],
     };
 
     expose(app, model, options);
 
-    const router = app.middleware[0].router
-    expect(router.match('/add', 'GET').route).to.be.true;
-    expect(router.match('/sub', 'GET').route).to.be.true;
+    const router = app.middleware[0].router;
+    expect(router.match('/add', 'GET').route).to.equal(true);
+    expect(router.match('/sub', 'GET').route).to.equal(true);
   });
 
   it('should register all verbs if no verbs were specified', () => {
-    const app = new koa();
+    const app = new Koa();
     const model = getModel();
 
     expose(app, model);
 
-    const router = app.middleware[0].router
+    const router = app.middleware[0].router;
 
-    Object.keys(handlers).forEach(verb => {
-      expect(router.match('/add', verb.toUpperCase()).route).to.be.true;
-      expect(router.match('/sub', verb.toUpperCase()).route).to.be.true;
+    Object.keys(handlers).forEach((verb) => {
+      expect(router.match('/add', verb.toUpperCase()).route).to.equal(true);
+      expect(router.match('/sub', verb.toUpperCase()).route).to.equal(true);
     });
   });
 
   it('should use the specified prefix', () => {
-    const app = new koa();
+    const app = new Koa();
     const model = getModel();
 
     const prefix = 'api';
@@ -64,40 +63,36 @@ describe('expose', () => {
 
     expose(app, model, options);
 
-    const router = app.middleware[0].router
+    const router = app.middleware[0].router;
 
-    Object.keys(handlers).forEach(verb => {
-      expect(router.match(`/${prefix}/add`, verb.toUpperCase()).route).to.be.true;
-      expect(router.match(`/${prefix}/sub`, verb.toUpperCase()).route).to.be.true;
+    Object.keys(handlers).forEach((verb) => {
+      expect(router.match(`/${prefix}/add`, verb.toUpperCase()).route).to.equal(true);
+      expect(router.match(`/${prefix}/sub`, verb.toUpperCase()).route).to.equal(true);
     });
   });
 
   it('should support an auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 10;
-        },
+      add: {
+        handler: () => (10),
         middleware: [
-          (ctx, next) => {
+          (ctx) => {
             ctx.body = {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-          }
-        ]
+          },
+        ],
       },
     });
     const options = {
-      authAdapter: (ctx) => {
-        return {
-          id: 12345,
-          auth: true,
-        };
-      },
+      authAdapter: () => ({
+        id: 12345,
+        auth: true,
+      }),
     };
 
     expose(app, model, options);
@@ -117,29 +112,25 @@ describe('expose', () => {
     // Define an authAdapter that returns a simple auth object
     //  Configure the method to skip auth step and allow handler
     //  Define one middleware fn that checks if auth handler ran
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 10;
-        },
+      add: {
+        handler: () => (10),
         noAuth: true,
         middleware: [
-          (ctx, next) => {
+          (ctx) => {
             ctx.body = {
               exists: Boolean(ctx.swatchCtx.auth),
             };
-          }
-        ]
+          },
+        ],
       },
     });
     const options = {
-      authAdapter: (ctx) => {
-        return {
-          id: 12345,
-          auth: true,
-        };
-      },
+      authAdapter: () => ({
+        id: 12345,
+        auth: true,
+      }),
     };
 
     expose(app, model, options);
@@ -157,29 +148,27 @@ describe('expose', () => {
   it('should support an async auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 10;
-        },
+      add: {
+        handler: () => (10),
         middleware: [
-          (ctx, next) => {
+          (ctx) => {
             ctx.body = {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-          }
-        ]
+          },
+        ],
       },
     });
     const options = {
-      authAdapter: async (ctx) => {
-        return await Promise.resolve({
+      authAdapter: async () => (
+        Promise.resolve({
           id: 12345,
           auth: true,
-        });
-      },
+        })
+      ),
     };
 
     expose(app, model, options);
@@ -197,11 +186,11 @@ describe('expose', () => {
 
   it('should return an error when handler throws an error', (done) => {
     // Define a sync handler that throws an exception
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
+      add: {
         handler: () => {
-          throw 'sync_whoops';
+          throw new Error('sync_whoops');
         },
       },
     });
@@ -217,45 +206,45 @@ describe('expose', () => {
         expect(res.body.error).to.equal('sync_whoops');
         done();
       });
+  });
+
+  it('should return success from an async handler', (done) => {
+    const app = new Koa();
+    const model = swatch({
+      add: {
+        handler: async () => (
+          new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(100);
+            }, 150);
+          })
+        ),
+      },
     });
 
-    it('should return success from an async handler', (done) => {
-      const app = new koa();
-      const model = swatch({
-        "add": {
-          handler: async () => {
-            return await new Promise((resolve) => {
-              setTimeout(() => {
-                resolve(100);
-              }, 150);
-            });
-          }
-        },
+    expose(app, model);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(true);
+        expect(res.body.result).to.equal(100);
+        done();
       });
-
-      expose(app, model);
-
-      request(http.createServer(app.callback()))
-        .get('/add')
-        .expect(200)
-        .end((err, res) => {
-          expect(err).to.equal(null);
-          expect(res.body.ok).to.equal(true);
-          expect(res.body.result).to.equal(100);
-          done();
-        });
-    });
+  });
 
   it('should return an error when handler throws an error inside a promise', (done) => {
     // Define an async function that throws a exception from inside a promise
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: async () => {
-          return await Promise.resolve('async_whoops').then(msg => {
+      add: {
+        handler: async () => (
+          Promise.resolve('async_whoops').then((msg) => {
             throw msg;
-          });
-        },
+          })
+        ),
       },
     });
 
@@ -270,29 +259,27 @@ describe('expose', () => {
         expect(res.body.error).to.equal('async_whoops');
         done();
       });
-    });
+  });
 
   it('should return an error when auth adapter throws an error', (done) => {
     // Define an authAdapter that throws an exception
     //  Define one middleware fn that should not run
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 10;
-        },
+      add: {
+        handler: () => (10),
         middleware: [
-          (ctx, next) => {
+          (ctx) => {
             ctx.body = {
               id: ctx.swatchCtx.auth.id,
               auth: ctx.swatchCtx.auth.auth,
             };
-          }
-        ]
+          },
+        ],
       },
     });
     const options = {
-      authAdapter: (ctx) => {
+      authAdapter: () => {
         throw new Error('invalid_auth_whoops');
       },
     };
@@ -308,31 +295,27 @@ describe('expose', () => {
         expect(res.body.error).to.equal('invalid_auth_whoops');
         done();
       });
-    });
+  });
 
   it('should return an error when any middleware throws an error', (done) => {
     // Define an authAdapter that works correctly
     //  Define one middleware fn that throws an error
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 10;
-        },
+      add: {
+        handler: () => (10),
         middleware: [
-          (ctx, next) => {
+          () => {
             throw new Error('invalid_middleware_oops');
-          }
-        ]
+          },
+        ],
       },
     });
     const options = {
-      authAdapter: (ctx) => {
-        return {
-          id: 12345,
-          auth: true,
-        };
-      },
+      authAdapter: () => ({
+        id: 12345,
+        auth: true,
+      }),
     };
 
     expose(app, model, options);
@@ -349,18 +332,16 @@ describe('expose', () => {
   });
 
   it('should allow sync middleware before running sync handler', (done) => {
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 500;
-        },
+      add: {
+        handler: () => (500),
         middleware: [
           (ctx, next) => {
             ctx.swatchCtx.value = 2000;
             next();
-          }
-        ]
+          },
+        ],
       },
     });
 
@@ -378,24 +359,22 @@ describe('expose', () => {
   });
 
   it('should allow sync middleware before running async handler', (done) => {
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: async () => {
-          return await new Promise((resolve) => {
+      add: {
+        handler: async () => (
+          new Promise((resolve) => {
             setTimeout(() => {
               resolve(250);
             }, 100);
-          }).then(val => {
-            return val * 5
-          });
-        },
+          }).then(val => (val * 5))
+        ),
         middleware: [
           async (ctx, next) => {
             ctx.swatchCtx.value = 3000;
             await next();
-          }
-        ]
+          },
+        ],
       },
     });
 
@@ -413,20 +392,18 @@ describe('expose', () => {
   });
 
   it('should allow async middleware before running sync handler', (done) => {
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: () => {
-          return 1000;
-        },
+      add: {
+        handler: () => (1000),
         middleware: [
           async (ctx, next) => {
             const result = await Promise.resolve(2000);
             ctx.swatchCtx.value = result;
 
             await next();
-          }
-        ]
+          },
+        ],
       },
     });
 
@@ -444,26 +421,24 @@ describe('expose', () => {
   });
 
   it('should allow async middleware before running async handler', (done) => {
-    const app = new koa();
+    const app = new Koa();
     const model = swatch({
-      "add": {
-        handler: async () => {
-          return await new Promise((resolve) => {
+      add: {
+        handler: async () => (
+          new Promise((resolve) => {
             setTimeout(() => {
               resolve(1000);
             }, 100);
-          }).then(val => {
-            return val * 2
-          });
-        },
+          }).then(val => (val * 2))
+        ),
         middleware: [
           async (ctx, next) => {
             const result = await Promise.resolve(3000);
             ctx.swatchCtx.value = result;
 
             await next();
-          }
-        ]
+          },
+        ],
       },
     });
 
