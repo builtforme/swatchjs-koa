@@ -1,5 +1,9 @@
 'use strict';
 
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -7,10 +11,6 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
-
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
 var initSwatchCtx = function () {
   var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(koaCtx, next) {
@@ -45,38 +45,6 @@ var Router = require('koa-router');
 var defaults = require('./defaults');
 var handlers = require('./handlers');
 var response = require('./response');
-
-function expose(app, methods, options) {
-  options = defaults(options);
-
-  var router = new Router();
-
-  methods.forEach(addMethod);
-
-  function addMethod(method) {
-    options.verbs.forEach(addRoute);
-
-    function addRoute(verb) {
-      verb = verb.trim();
-
-      var path = '' + options.prefix + method.name;
-
-      var adapter = method.noAuth ? [initSwatchCtx] : [initSwatchCtx, options.authAdapter];
-      var middleware = adapter.concat(method.middleware.map(function (fn) {
-        return wrapMiddleware(fn);
-      }));
-
-      var handler = handlers[verb](method);
-      var handlerList = middleware.concat([handler]);
-
-      router[verb].apply(router, [path].concat((0, _toConsumableArray3.default)(handlerList)));
-    }
-  }
-
-  app.use(router.routes());
-}
-
-;
 
 function wrapMiddleware(fn) {
   var wrapper = function () {
@@ -114,6 +82,34 @@ function wrapMiddleware(fn) {
   }();
 
   return wrapper;
+}
+
+function expose(app, methods, opts) {
+  var options = defaults(opts);
+
+  var router = new Router();
+
+  function addMethod(method) {
+    function addRoute(supportedVerb) {
+      var verb = supportedVerb.trim();
+
+      var path = '' + options.prefix + method.name;
+
+      var adapter = method.noAuth ? [initSwatchCtx] : [initSwatchCtx, options.authAdapter];
+      var middleware = adapter.concat(method.middleware.map(wrapMiddleware));
+
+      var handler = handlers[verb](method);
+      var handlerList = middleware.concat([handler]);
+
+      router[verb].apply(router, [path].concat((0, _toConsumableArray3.default)(handlerList)));
+    }
+
+    options.verbs.forEach(addRoute);
+  }
+
+  methods.forEach(addMethod);
+
+  app.use(router.routes());
 }
 
 module.exports = expose;

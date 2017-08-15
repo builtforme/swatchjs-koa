@@ -3,11 +3,11 @@
 var handler = require('./handler');
 
 function get(method) {
-  return getHandler;
-
-  function getHandler(koaCtx, next) {
+  function getHandler(koaCtx) {
     return handler(koaCtx, koaCtx.query, method);
   }
+
+  return getHandler;
 }
 
 module.exports = get;
