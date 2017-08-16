@@ -92,11 +92,13 @@ function expose(app, methods, opts) {
   function addMethod(method) {
     function addRoute(supportedVerb) {
       var verb = supportedVerb.trim();
-
       var path = '' + options.prefix + method.name;
 
-      var adapter = method.noAuth ? [initSwatchCtx] : [initSwatchCtx, options.authAdapter];
-      var middleware = adapter.concat(method.middleware.map(wrapMiddleware));
+      var noAuth = method.metadata.noAuth || false;
+      var methodMiddleware = method.metadata.middleware || [];
+
+      var adapter = noAuth ? [initSwatchCtx] : [initSwatchCtx, options.authAdapter];
+      var middleware = adapter.concat(methodMiddleware.map(wrapMiddleware));
 
       var handler = handlers[verb](method);
       var handlerList = middleware.concat([handler]);

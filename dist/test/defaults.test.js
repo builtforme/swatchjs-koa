@@ -105,7 +105,7 @@ describe('defaults', function () {
 
     it('should handle an error in the async auth adapter', function () {
       function authAdapter() {
-        throw 'auth_error';
+        throw new Error('auth_error');
       }
       var options = {
         authAdapter: authAdapter
