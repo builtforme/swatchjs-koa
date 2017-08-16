@@ -78,14 +78,16 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (10),
-        middleware: [
-          (ctx) => {
-            ctx.body = {
-              id: ctx.swatchCtx.auth.id,
-              auth: ctx.swatchCtx.auth.auth,
-            };
-          },
-        ],
+        metadata: {
+          middleware: [
+            (ctx) => {
+              ctx.body = {
+                id: ctx.swatchCtx.auth.id,
+                auth: ctx.swatchCtx.auth.auth,
+              };
+            },
+          ],
+        },
       },
     });
     const options = {
@@ -116,14 +118,16 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (10),
-        noAuth: true,
-        middleware: [
-          (ctx) => {
-            ctx.body = {
-              exists: Boolean(ctx.swatchCtx.auth),
-            };
-          },
-        ],
+        metadata: {
+          noAuth: true,
+          middleware: [
+            (ctx) => {
+              ctx.body = {
+                exists: Boolean(ctx.swatchCtx.auth),
+              };
+            },
+          ],
+        },
       },
     });
     const options = {
@@ -152,14 +156,16 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (10),
-        middleware: [
-          (ctx) => {
-            ctx.body = {
-              id: ctx.swatchCtx.auth.id,
-              auth: ctx.swatchCtx.auth.auth,
-            };
-          },
-        ],
+        metadata: {
+          middleware: [
+            (ctx) => {
+              ctx.body = {
+                id: ctx.swatchCtx.auth.id,
+                auth: ctx.swatchCtx.auth.auth,
+              };
+            },
+          ],
+        },
       },
     });
     const options = {
@@ -268,14 +274,16 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (10),
-        middleware: [
-          (ctx) => {
-            ctx.body = {
-              id: ctx.swatchCtx.auth.id,
-              auth: ctx.swatchCtx.auth.auth,
-            };
-          },
-        ],
+        metadata: {
+          middleware: [
+            (ctx) => {
+              ctx.body = {
+                id: ctx.swatchCtx.auth.id,
+                auth: ctx.swatchCtx.auth.auth,
+              };
+            },
+          ],
+        },
       },
     });
     const options = {
@@ -304,11 +312,13 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (10),
-        middleware: [
-          () => {
-            throw new Error('invalid_middleware_oops');
-          },
-        ],
+        metadata: {
+          middleware: [
+            () => {
+              throw new Error('invalid_middleware_oops');
+            },
+          ],
+        },
       },
     });
     const options = {
@@ -336,12 +346,14 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (500),
-        middleware: [
-          (ctx, next) => {
-            ctx.swatchCtx.value = 2000;
-            next();
-          },
-        ],
+        metadata: {
+          middleware: [
+            (ctx, next) => {
+              ctx.swatchCtx.value = 2000;
+              next();
+            },
+          ],
+        },
       },
     });
 
@@ -369,12 +381,14 @@ describe('expose', () => {
             }, 100);
           }).then(val => (val * 5))
         ),
-        middleware: [
-          async (ctx, next) => {
-            ctx.swatchCtx.value = 3000;
-            await next();
-          },
-        ],
+        metadata: {
+          middleware: [
+            async (ctx, next) => {
+              ctx.swatchCtx.value = 3000;
+              await next();
+            },
+          ],
+        },
       },
     });
 
@@ -396,14 +410,16 @@ describe('expose', () => {
     const model = swatch({
       add: {
         handler: () => (1000),
-        middleware: [
-          async (ctx, next) => {
-            const result = await Promise.resolve(2000);
-            ctx.swatchCtx.value = result;
+        metadata: {
+          middleware: [
+            async (ctx, next) => {
+              const result = await Promise.resolve(2000);
+              ctx.swatchCtx.value = result;
 
-            await next();
-          },
-        ],
+              await next();
+            },
+          ],
+        },
       },
     });
 
@@ -431,14 +447,16 @@ describe('expose', () => {
             }, 100);
           }).then(val => (val * 2))
         ),
-        middleware: [
-          async (ctx, next) => {
-            const result = await Promise.resolve(3000);
-            ctx.swatchCtx.value = result;
+        metadata: {
+          middleware: [
+            async (ctx, next) => {
+              const result = await Promise.resolve(3000);
+              ctx.swatchCtx.value = result;
 
-            await next();
-          },
-        ],
+              await next();
+            },
+          ],
+        },
       },
     });
 
