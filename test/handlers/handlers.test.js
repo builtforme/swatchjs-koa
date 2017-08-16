@@ -34,7 +34,8 @@ function invokeHandler(fn, verb, expected) {
 function invokeErrorHandler(fn, verb) {
   const expected = {
     ok: false,
-    error: 'some_error: 3',
+    error: 'An error message',
+    details: 'This is a fake error meant to test stuff. a=1, b=2',
   };
   return invokeHandler(fn, verb, expected);
 }
@@ -61,7 +62,10 @@ describe('handlers', () => {
 
         it('should write a JSON error response if function fails with Error', (done) => {
           const fn = (a, b) => {
-            throw new Error(`some_error: ${a + b}`);
+            throw {
+              message: 'An error message',
+              details: `This is a fake error meant to test stuff. a=${a}, b=${b}`,
+            };
           };
           invokeErrorHandler(fn, verb).then(done);
         });
