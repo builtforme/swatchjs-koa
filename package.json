@@ -1,6 +1,6 @@
 {
   "name": "swatchjs-koa",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "KOA adapter for swatchjs",
   "main": "dist/index.js",
   "scripts": {
@@ -58,7 +58,7 @@
     "babel-polyfill": "^6.23.0",
     "babel-runtime": "^6.25.0",
     "koa-router": "^7.2.1",
-    "swatchjs": "^0.1.36"
+    "swatchjs": "^0.1.37"
   },
   "directories": {
     "lib": "lib",
