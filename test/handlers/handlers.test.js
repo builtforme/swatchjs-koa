@@ -34,7 +34,7 @@ function invokeHandler(fn, verb, expected) {
 function invokeErrorHandler(fn, verb) {
   const expected = {
     ok: false,
-    error: 'some_error: 3',
+    error: 'some_error: 4',
   };
   return invokeHandler(fn, verb, expected);
 }
