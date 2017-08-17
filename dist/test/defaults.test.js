@@ -1,14 +1,7 @@
 'use strict';
 
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 var expect = require('chai').expect;
 var defaults = require('../lib/defaults');
-var handlers = require('../lib/handlers');
 
 describe('defaults', function () {
   describe('options', function () {
@@ -46,7 +39,7 @@ describe('defaults', function () {
     });
 
     it('should use the default verbs if a list is not passed in', function () {
-      expect(defaults().verbs).to.deep.equal((0, _keys2.default)(handlers));
+      expect(defaults().verbs).to.deep.equal(['get', 'post']);
     });
   });
 

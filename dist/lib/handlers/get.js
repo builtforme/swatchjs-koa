@@ -1,13 +1,7 @@
-'use strict';
+"use strict";
 
-var handler = require('./handler');
-
-function get(method) {
-  function getHandler(koaCtx) {
-    return handler(koaCtx, koaCtx.query, method);
-  }
-
-  return getHandler;
+function get(koaCtx) {
+  return koaCtx.query;
 }
 
 module.exports = get;

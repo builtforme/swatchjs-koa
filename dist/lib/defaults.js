@@ -8,16 +8,12 @@ var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var handlers = require('./handlers');
 var response = require('./response');
 
-var SUPPORTED_VERBS = (0, _keys2.default)(handlers);
+var SUPPORTED_VERBS = ['get', 'post'];
 
 function defaultVerbs(requested) {
   if (requested && !(requested instanceof Array)) {
@@ -42,7 +38,7 @@ function defaultPrefix(prefix) {
 
 function defaultAuthAdapter(authAdapter) {
   var authMiddleware = function () {
-    var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(koaCtx, next) {
+    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(koaCtx, next) {
       var auth;
       return _regenerator2.default.wrap(function _callee$(_context) {
         while (1) {

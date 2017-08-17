@@ -1,13 +1,7 @@
-'use strict';
+"use strict";
 
-var handler = require('./handler');
-
-function post(method) {
-  function postHandler(koaCtx) {
-    return handler(koaCtx, koaCtx.request.body, method);
-  }
-
-  return postHandler;
+function post(koaCtx) {
+  return koaCtx.request.body;
 }
 
 module.exports = post;
