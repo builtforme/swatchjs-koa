@@ -11,6 +11,6 @@
     },
     "rules": {
         "no-param-reassign": ["error", { "props": false }],
-        "no-throw-literal": 0
+        "no-throw-literal": "off"
     }
 }
