@@ -13,7 +13,7 @@ var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var initSwatchCtx = function () {
-  var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(koaCtx, next) {
+  var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(koaCtx, next) {
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -48,7 +48,7 @@ var response = require('./response');
 
 function wrapMiddleware(fn) {
   var middlewareWrapper = function () {
-    var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(koaCtx, next) {
+    var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(koaCtx, next) {
       return _regenerator2.default.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
@@ -86,7 +86,7 @@ function wrapMiddleware(fn) {
 
 function validationMiddleware(validateFn, verb) {
   var validationWrapper = function () {
-    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(koaCtx, next) {
+    var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(koaCtx, next) {
       var requestParams;
       return _regenerator2.default.wrap(function _callee3$(_context3) {
         while (1) {
