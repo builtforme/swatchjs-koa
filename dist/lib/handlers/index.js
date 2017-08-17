@@ -2,10 +2,10 @@
 
 var get = require('./get');
 var post = require('./post');
+var handler = require('./handler');
 
-var HANDLERS = {
+module.exports = {
   get: get,
-  post: post
+  post: post,
+  handler: handler
 };
-
-module.exports = HANDLERS;

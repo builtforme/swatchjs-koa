@@ -14,7 +14,8 @@ function successResponse(ctx, result) {
 function errorResponse(ctx, error) {
   ctx.body = {
     ok: false,
-    error: error && error.message || error
+    error: error && error.message || error,
+    details: error && error.details || undefined
   };
 }
 

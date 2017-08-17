@@ -12,21 +12,16 @@ var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Koa = require('koa');
 
 var chai = require('chai');
 var http = require('http');
 var swatch = require('swatchjs');
 var request = require('supertest');
 
-var Koa = require('koa');
-
 var expose = require('../lib/expose');
-var handlers = require('../lib/handlers');
 
 var expect = chai.expect;
 
@@ -70,7 +65,7 @@ describe('expose', function () {
 
     var router = app.middleware[0].router;
 
-    (0, _keys2.default)(handlers).forEach(function (verb) {
+    ['get', 'post'].forEach(function (verb) {
       expect(router.match('/add', verb.toUpperCase()).route).to.equal(true);
       expect(router.match('/sub', verb.toUpperCase()).route).to.equal(true);
     });
@@ -89,7 +84,7 @@ describe('expose', function () {
 
     var router = app.middleware[0].router;
 
-    (0, _keys2.default)(handlers).forEach(function (verb) {
+    ['get', 'post'].forEach(function (verb) {
       expect(router.match('/' + prefix + '/add', verb.toUpperCase()).route).to.equal(true);
       expect(router.match('/' + prefix + '/sub', verb.toUpperCase()).route).to.equal(true);
     });
@@ -192,7 +187,7 @@ describe('expose', function () {
     });
     var options = {
       authAdapter: function () {
-        var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
+        var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
           return _regenerator2.default.wrap(function _callee$(_context) {
             while (1) {
               switch (_context.prev = _context.next) {
@@ -252,7 +247,7 @@ describe('expose', function () {
     var model = swatch({
       add: {
         handler: function () {
-          var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
+          var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2() {
             return _regenerator2.default.wrap(function _callee2$(_context2) {
               while (1) {
                 switch (_context2.prev = _context2.next) {
@@ -294,7 +289,7 @@ describe('expose', function () {
     var model = swatch({
       add: {
         handler: function () {
-          var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3() {
+          var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
             return _regenerator2.default.wrap(function _callee3$(_context3) {
               while (1) {
                 switch (_context3.prev = _context3.next) {
@@ -359,6 +354,43 @@ describe('expose', function () {
       expect(err).to.equal(null);
       expect(res.body.ok).to.equal(false);
       expect(res.body.error).to.equal('invalid_auth_whoops');
+      done();
+    });
+  });
+
+  it('should return an error when validation throws an error', function (done) {
+    // Define an authAdapter that works correctly
+    //  Define validation that throws an error
+    var app = new Koa();
+    var model = swatch({
+      add: {
+        handler: function handler(x) {
+          return x + 10;
+        },
+        args: [{
+          name: 'x',
+          validate: function validate(x) {
+            if (x < 10) {
+              throw new Error('value_too_small');
+            }
+          }
+        }]
+      }
+    });
+    var options = {
+      authAdapter: function authAdapter() {
+        return {
+          id: 12345
+        };
+      }
+    };
+
+    expose(app, model, options);
+
+    request(http.createServer(app.callback())).get('/add?x=1').expect(200).end(function (err, res) {
+      expect(err).to.equal(null);
+      expect(res.body.ok).to.equal(false);
+      expect(res.body.error).to.equal('value_too_small');
       done();
     });
   });
@@ -429,7 +461,7 @@ describe('expose', function () {
     var model = swatch({
       add: {
         handler: function () {
-          var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4() {
+          var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
             return _regenerator2.default.wrap(function _callee4$(_context4) {
               while (1) {
                 switch (_context4.prev = _context4.next) {
@@ -456,7 +488,7 @@ describe('expose', function () {
         }(),
         metadata: {
           middleware: [function () {
-            var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(ctx, next) {
+            var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(ctx, next) {
               return _regenerator2.default.wrap(function _callee5$(_context5) {
                 while (1) {
                   switch (_context5.prev = _context5.next) {
@@ -500,7 +532,7 @@ describe('expose', function () {
         },
         metadata: {
           middleware: [function () {
-            var _ref6 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee6(ctx, next) {
+            var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(ctx, next) {
               var result;
               return _regenerator2.default.wrap(function _callee6$(_context6) {
                 while (1) {
@@ -548,7 +580,7 @@ describe('expose', function () {
     var model = swatch({
       add: {
         handler: function () {
-          var _ref7 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee7() {
+          var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7() {
             return _regenerator2.default.wrap(function _callee7$(_context7) {
               while (1) {
                 switch (_context7.prev = _context7.next) {
@@ -575,7 +607,7 @@ describe('expose', function () {
         }(),
         metadata: {
           middleware: [function () {
-            var _ref8 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee8(ctx, next) {
+            var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee8(ctx, next) {
               var result;
               return _regenerator2.default.wrap(function _callee8$(_context8) {
                 while (1) {

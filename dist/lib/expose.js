@@ -13,7 +13,7 @@ var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var initSwatchCtx = function () {
-  var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(koaCtx, next) {
+  var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(koaCtx, next) {
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -47,8 +47,8 @@ var handlers = require('./handlers');
 var response = require('./response');
 
 function wrapMiddleware(fn) {
-  var wrapper = function () {
-    var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(koaCtx, next) {
+  var middlewareWrapper = function () {
+    var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(koaCtx, next) {
       return _regenerator2.default.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
@@ -76,12 +76,58 @@ function wrapMiddleware(fn) {
       }, _callee2, this, [[0, 5]]);
     }));
 
-    return function wrapper(_x3, _x4) {
+    return function middlewareWrapper(_x3, _x4) {
       return _ref2.apply(this, arguments);
     };
   }();
 
-  return wrapper;
+  return middlewareWrapper;
+}
+
+function validationMiddleware(validateFn, verb) {
+  var validationWrapper = function () {
+    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(koaCtx, next) {
+      var requestParams;
+      return _regenerator2.default.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.prev = 0;
+
+              // Get the params from request body and validate
+              //  Updates koaCtx.swatchCtx with validated params
+              requestParams = handlers[verb](koaCtx);
+
+              validateFn(koaCtx, requestParams);
+
+              _context3.next = 5;
+              return next();
+
+            case 5:
+              _context3.next = 10;
+              break;
+
+            case 7:
+              _context3.prev = 7;
+              _context3.t0 = _context3['catch'](0);
+
+              // Validation error should trigger failure response
+              response.errorResponse(koaCtx, _context3.t0);
+
+            case 10:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, this, [[0, 7]]);
+    }));
+
+    return function validationWrapper(_x5, _x6) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+
+  return validationWrapper;
 }
 
 function expose(app, methods, opts) {
@@ -94,13 +140,14 @@ function expose(app, methods, opts) {
       var verb = supportedVerb.trim();
       var path = '' + options.prefix + method.name;
 
-      var noAuth = method.metadata.noAuth || false;
-      var methodMiddleware = method.metadata.middleware || [];
+      var noAuth = method.metadata.noAuth;
+      var methodMiddleware = method.metadata.middleware;
 
       var adapter = noAuth ? [initSwatchCtx] : [initSwatchCtx, options.authAdapter];
-      var middleware = adapter.concat(methodMiddleware.map(wrapMiddleware));
+      var validator = adapter.concat([validationMiddleware(method.validate, verb)]);
+      var middleware = validator.concat(methodMiddleware.map(wrapMiddleware));
 
-      var handler = handlers[verb](method);
+      var handler = handlers.handler(method.handle);
       var handlerList = middleware.concat([handler]);
 
       router[verb].apply(router, [path].concat((0, _toConsumableArray3.default)(handlerList)));

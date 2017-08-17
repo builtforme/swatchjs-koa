@@ -1,12 +1,11 @@
+const Koa = require('koa');
+
 const chai = require('chai');
 const http = require('http');
 const swatch = require('swatchjs');
 const request = require('supertest');
 
-const Koa = require('koa');
-
 const expose = require('../lib/expose');
-const handlers = require('../lib/handlers');
 
 const expect = chai.expect;
 
@@ -46,7 +45,7 @@ describe('expose', () => {
 
     const router = app.middleware[0].router;
 
-    Object.keys(handlers).forEach((verb) => {
+    ['get', 'post'].forEach((verb) => {
       expect(router.match('/add', verb.toUpperCase()).route).to.equal(true);
       expect(router.match('/sub', verb.toUpperCase()).route).to.equal(true);
     });
@@ -65,7 +64,7 @@ describe('expose', () => {
 
     const router = app.middleware[0].router;
 
-    Object.keys(handlers).forEach((verb) => {
+    ['get', 'post'].forEach((verb) => {
       expect(router.match(`/${prefix}/add`, verb.toUpperCase()).route).to.equal(true);
       expect(router.match(`/${prefix}/sub`, verb.toUpperCase()).route).to.equal(true);
     });
@@ -301,6 +300,44 @@ describe('expose', () => {
         expect(err).to.equal(null);
         expect(res.body.ok).to.equal(false);
         expect(res.body.error).to.equal('invalid_auth_whoops');
+        done();
+      });
+  });
+
+  it('should return an error when validation throws an error', (done) => {
+    // Define an authAdapter that works correctly
+    //  Define validation that throws an error
+    const app = new Koa();
+    const model = swatch({
+      add: {
+        handler: x => (x + 10),
+        args: [
+          {
+            name: 'x',
+            validate: (x) => {
+              if (x < 10) {
+                throw new Error('value_too_small');
+              }
+            },
+          },
+        ],
+      },
+    });
+    const options = {
+      authAdapter: () => ({
+        id: 12345,
+      }),
+    };
+
+    expose(app, model, options);
+
+    request(http.createServer(app.callback()))
+      .get('/add?x=1')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body.ok).to.equal(false);
+        expect(res.body.error).to.equal('value_too_small');
         done();
       });
   });
