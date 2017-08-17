@@ -59,6 +59,3 @@ typings/
 
 # Don't publish the ES6 source
 lib
-
-# transpiled code (used to publish to npm)
-dist
