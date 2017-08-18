@@ -58,5 +58,5 @@ typings/
 .env
 
 # Don't publish the ES6 source
-lib
-test
+./lib
+./test
