@@ -1,6 +1,6 @@
 {
   "name": "swatchjs-koa",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "KOA adapter for swatchjs",
   "main": "dist/index.js",
   "scripts": {
