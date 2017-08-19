@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc mocha --opts test/unit/mocha.opts 'test/**/*.test.js'",
     "test:debug": "mocha --debug-brk",
-    "lint": "./node_modules/.bin/eslint --ext .js index.js lib/*.js test/*.js",
+    "lint": "./node_modules/.bin/eslint --ext .js index.js lib/**/*.js test/**/*.js",
     "build": "babel . -d dist --ignore coverage,dist,node_modules",
     "clean": "rm -rf dist/",
     "coveralls": "nyc report --reporter=text-lcov | ./node_modules/coveralls/bin/coveralls.js",
