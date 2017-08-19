@@ -60,9 +60,7 @@
     "koa-router": "^7.2.1",
     "swatchjs": "^1.0.0"
   },
-  "directories": {
-    "lib": "lib",
-    "test": "test",
-    "dist": "dist"
-  }
+  "files": [
+    "dist"
+  ]
 }
