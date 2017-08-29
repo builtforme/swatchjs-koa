@@ -6,7 +6,7 @@ describe('defaults', () => {
     it('should include all default options', () => {
       const options = defaults();
       expect(options).to.be.an('object').that.has.all.keys(
-        'verbs', 'prefix', 'authAdapter',
+        'verbs', 'prefix', 'authAdapter', 'onExceptionMap',
       );
     });
   });
@@ -103,6 +103,37 @@ describe('defaults', () => {
         expect(emptyCtx.body.ok).to.equal(false);
         expect(emptyCtx.body.error).to.equal('auth_error');
       });
+    });
+  });
+
+  describe('onExceptionMap', () => {
+    it('should throw if onExceptionMap is passed, but is not a function', () => {
+      const options = {
+        onExceptionMap: false,
+      };
+      expect(() => defaults(options)).to.throw();
+    });
+
+    it('should use the passed exception mapping function', () => {
+      function onExceptionMap(error) {
+        if (error === 'test_error') {
+          return 'other_test_error';
+        }
+        return error;
+      }
+      const options = {
+        onExceptionMap,
+      };
+
+      const exceptionMap = defaults(options).onExceptionMap;
+      expect(exceptionMap('whatever')).to.equal('whatever');
+      expect(exceptionMap('test_error')).to.equal('other_test_error');
+    });
+
+    it('should use the default exception function if not specified', () => {
+      const exceptionMap = defaults({}).onExceptionMap;
+      expect(exceptionMap('whatever')).to.equal('whatever');
+      expect(exceptionMap('test_error')).to.equal('test_error');
     });
   });
 });
