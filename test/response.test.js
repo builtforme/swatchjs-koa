@@ -33,7 +33,7 @@ describe('response', () => {
 
   it('should handle error string responses', () => {
     const error = 'error_code';
-    const ctx = initCtx(() => {});
+    const ctx = initCtx((arg) => { throw arg; });
 
     response.errorResponse(ctx, error);
 
@@ -47,7 +47,7 @@ describe('response', () => {
   it('should handle error object responses', () => {
     const error = 'error_code';
 
-    const ctx = initCtx(() => {});
+    const ctx = initCtx((arg) => { throw arg; });
     const errorObj = new Error(error);
 
     response.errorResponse(ctx, errorObj);
@@ -63,7 +63,7 @@ describe('response', () => {
     const error = 'error_code';
     const details = 'Call stack for error';
 
-    const ctx = initCtx(() => {});
+    const ctx = initCtx((arg) => { throw arg; });
     const errorObj = {
       message: error,
       details,
@@ -94,8 +94,25 @@ describe('response', () => {
 
     expect(ctx.body).to.deep.equal({
       ok: false,
-      details,
       error: 'other_error_code',
+      details: undefined,
+    });
+  });
+
+  it('should rescue an exception to return a value valid', () => {
+    const error = 'error_code';
+    const details = 'Call stack for error';
+    const errorObj = {
+      message: error,
+      details,
+    };
+    const ctx = initCtx(() => ('its_actually_fine'));
+
+    response.errorResponse(ctx, errorObj);
+
+    expect(ctx.body).to.deep.equal({
+      ok: true,
+      result: 'its_actually_fine',
     });
   });
 });

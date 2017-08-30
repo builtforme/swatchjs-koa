@@ -117,23 +117,23 @@ describe('defaults', () => {
     it('should use the passed exception mapping function', () => {
       function onException(error) {
         if (error === 'test_error') {
-          return 'other_test_error';
+          return 'actually_its_fine';
         }
-        return error;
+        throw error;
       }
       const options = {
         onException,
       };
 
       const exceptionMap = defaults(options).onException;
-      expect(exceptionMap('whatever')).to.equal('whatever');
-      expect(exceptionMap('test_error')).to.equal('other_test_error');
+      expect(() => exceptionMap('whatever')).to.throw('whatever');
+      expect(exceptionMap('test_error')).to.equal('actually_its_fine');
     });
 
     it('should use the default exception function if not specified', () => {
       const exceptionMap = defaults({}).onException;
-      expect(exceptionMap('whatever')).to.equal('whatever');
-      expect(exceptionMap('test_error')).to.equal('test_error');
+      expect(() => exceptionMap('whatever')).to.throw('whatever');
+      expect(() => exceptionMap('test_error')).to.throw('test_error');
     });
   });
 });

@@ -123,10 +123,73 @@ example above) which takes the following parameters:
 
 The `options` object has the following properties:
 
-| Property  | Example   | Default value     | Description   |
-|:---       |:---       |:---               |:---           |
-|`verbs`    |`['get']`  |`['get','post']`   | An array with a list of HTTP verbs to use. Each verb must be a string, and must be known. |
-|`prefix`   |`'api'`    |`''`               | A URL prefix to be added to every route. For example, if the value of this option is `'product'`, then the URL of all APIs will start with `/product/`.   |
+| Property     | Example   | Default value     | Description   |
+|:---          |:---       |:---               |:---           |
+|`verbs`       |`['get']`  |`['get','post']`   | An array with a list of enabled HTTP verbs. Each verb must be a string. |
+|`prefix`      |`'api'`    |`''`               | A URL prefix to be added to every route. For example, if the value of this option is `'product'`, then the URL of all APIs will start with `/product/`.   |
+|`authAdapter` |`fn`       |See below          | A function to perform authentication and extract credentials from a request. |
+|`onException` |`fn`       |See below          | A function to catch any exception and optionally rescue before returning an error. |
+
+### The `authAdapter` function
+
+Clients can specify a function to map an incoming KOA request into a custom
+object containing user credentials or authentication details. The `authAdapter`
+function is run as the first piece of middleware in any request. It should
+have the following form:
+
+```javascript
+async function sampleAuthAdapter(koaCtx) {
+  // Use koaCtx.request.headers to access headers
+  var token = koaCtx.request.headers.authorization;
+
+  // Validate authentication param synchronously
+  //  or make an async call to a token service
+  var userInfo = await externalTokenService.verify(token);
+
+  // Throw an exception if authentication fails
+  //                    OR
+  // Return any object if authentication succeeds
+  return {
+    token: token,
+    userName: userInfo.name,
+    userRole: userInfo.role,
+  };
+}
+```
+
+If the authAdapter throws an exception, the request will short-circuit
+and return the error code with status `ok: false`. If the authAdapter returns
+any value, it will store the result under `swatchCtx.auth`. The result can
+be accessed later, allowing clients to reuse any result in the handler.
+
+### The `onException` function
+
+Clients can specify a function that will execute whenever an error is thrown
+from a handler. This function will run before a response is set, allowing the
+client to handle the error. The `onException` function can do one of three things:
+
+1. Re-throw to return the exception to client with `{ ok: false }` semantics
+2. Throw an alternate exception to return to client with `{ ok: false }` semantics
+3. Return any object to rescue the error and return to client with `{ ok: true }` semantics
+
+The function must be synchronous, and should have the following form:
+
+```javascript
+function sampleOnException(error) {
+  // Returning an object will rescue
+  if (error === 'some_minor_error') {
+    return { rescued_error: true };
+  }
+
+  // Map the error to another error by throwing
+  if (error === 'some_internal_db_error') {
+    throw 'generic_server_unavailable_error';
+  }
+
+  // Otherwise caller can re-throw the original
+  throw error;
+}
+```
 
 ## Developers
 
