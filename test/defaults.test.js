@@ -6,7 +6,7 @@ describe('defaults', () => {
     it('should include all default options', () => {
       const options = defaults();
       expect(options).to.be.an('object').that.has.all.keys(
-        'verbs', 'prefix', 'authAdapter', 'onException',
+        'verbs', 'prefix', 'authAdapter', 'onException', 'rawResponse',
       );
     });
   });
@@ -134,6 +134,33 @@ describe('defaults', () => {
       const exceptionMap = defaults({}).onException;
       expect(() => exceptionMap('whatever')).to.throw('whatever');
       expect(() => exceptionMap('test_error')).to.throw('test_error');
+    });
+  });
+
+  describe('rawResponse', () => {
+    it('should use the passed true rawResponse value', () => {
+      const options = {
+        rawResponse: true,
+      };
+      expect(defaults(options).rawResponse).to.equal(true);
+    });
+
+    it('should use the passed false rawResponse value', () => {
+      const options = {
+        rawResponse: false,
+      };
+      expect(defaults(options).rawResponse).to.equal(false);
+    });
+
+    it('should coerce the passed rawResponse value', () => {
+      const options = {
+        rawResponse: null,
+      };
+      expect(defaults(options).rawResponse).to.equal(false);
+    });
+
+    it('should default to false if not specified', () => {
+      expect(defaults({}).rawResponse).to.equal(false);
     });
   });
 });
