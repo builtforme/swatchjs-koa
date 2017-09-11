@@ -1,10 +1,10 @@
 const expect = require('chai').expect;
-const handlers = require('../../lib/handlers');
+const methods = require('../../lib/methods');
 
-describe('handlers', () => {
+describe('methods', () => {
   describe('index', () => {
     it('should contain all verbs', () => {
-      expect(handlers).to.be.an('object').that.has.all.keys('get', 'post', 'handler');
+      expect(methods).to.be.an('object').that.has.all.keys('get', 'post');
     });
   });
 
@@ -17,7 +17,7 @@ describe('handlers', () => {
           return params;
         },
       };
-      expect(handlers.get(getCtx)).to.deep.equal(params);
+      expect(methods.get(getCtx)).to.deep.equal(params);
     });
 
     it('should get query params from a POST request', () => {
@@ -31,7 +31,7 @@ describe('handlers', () => {
           return request;
         },
       };
-      expect(handlers.post(postCtx)).to.deep.equal(params);
+      expect(methods.post(postCtx)).to.deep.equal(params);
     });
   });
 });
