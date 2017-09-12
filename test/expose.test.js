@@ -148,6 +148,64 @@ describe('expose', () => {
       });
   });
 
+  it('should return a raw response from successful request', (done) => {
+    const val = {
+      some_val: 10,
+      another_val: 20,
+    };
+
+    const app = new Koa();
+    const model = swatch({
+      add: {
+        handler: () => (val),
+      },
+    });
+    const options = {
+      rawResponse: true,
+    };
+
+    expose(app, model, options);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body).to.deep.equal(val);
+        expect(res.body.ok).to.equal(undefined);
+        done();
+      });
+  });
+
+  it('should return a raw response from a failed request', (done) => {
+    const error = {
+      error_val: 'raw_sync_whoops',
+    };
+    const app = new Koa();
+    const model = swatch({
+      add: {
+        handler: () => {
+          throw error;
+        },
+      },
+    });
+    const options = {
+      rawResponse: true,
+    };
+
+    expose(app, model, options);
+
+    request(http.createServer(app.callback()))
+      .get('/add')
+      .expect(200)
+      .end((err, res) => {
+        expect(err).to.equal(null);
+        expect(res.body).to.deep.equal(error);
+        expect(res.body.ok).to.equal(undefined);
+        done();
+      });
+  });
+
   it('should support an async auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body

@@ -129,6 +129,7 @@ The `options` object has the following properties:
 |`prefix`      |`'api'`    |`''`               | A URL prefix to be added to every route. For example, if the value of this option is `'product'`, then the URL of all APIs will start with `/product/`.   |
 |`authAdapter` |`fn`       |See below          | A function to perform authentication and extract credentials from a request. |
 |`onException` |`fn`       |See below          | A function to catch any exception and optionally rescue before returning an error. |
+|`rawResponse` |`boolean`  |`false`            | Returns the raw response object without the `{ ok: true }` or `{ ok: false }` wrapper. |
 
 ### The `authAdapter` function
 
