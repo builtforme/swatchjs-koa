@@ -1,13 +1,20 @@
+const bunyan = require('bunyan');
 const chai = require('chai');
 
 const response = require('../lib/response');
 
 const expect = chai.expect;
 
+const logger = bunyan.createLogger({
+  name: 'swatch-koa-test',
+  streams: [{ path: '/dev/null' }],
+});
+
 function initCtx(onException) {
   return {
     body: {},
     swatchCtx: {
+      logger,
       request: {
         onException,
       },
