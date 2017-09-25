@@ -2,6 +2,7 @@ const Koa = require('koa');
 
 const chai = require('chai');
 const http = require('http');
+const mute = require('mute');
 const swatch = require('swatchjs');
 const request = require('supertest');
 
@@ -23,6 +24,12 @@ function getModel() {
 }
 
 describe('expose', () => {
+  let unmute;
+
+  before(() => { unmute = mute(); });
+
+  after(() => { unmute(); });
+
   it('should only register the requested verbs', () => {
     const app = new Koa();
     const model = getModel();
