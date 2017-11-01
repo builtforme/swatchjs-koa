@@ -1,14 +1,27 @@
 const Koa = require('koa');
+const koaBunyanLogger = require('koa-bunyan-logger');
 
+const bunyan = require('bunyan');
 const chai = require('chai');
 const http = require('http');
-const mute = require('mute');
 const swatch = require('swatchjs');
 const request = require('supertest');
 
 const expose = require('../lib/expose');
 
 const expect = chai.expect;
+
+const silentLogger = bunyan.createLogger({
+  name: 'swatch-koa-test',
+  streams: [{ path: '/dev/null' }],
+});
+const koaSilentLogger = koaBunyanLogger(silentLogger);
+
+function initApp() {
+  const app = new Koa();
+  app.use(koaSilentLogger);
+  return app;
+}
 
 function getModel() {
   const model = swatch({
@@ -24,14 +37,8 @@ function getModel() {
 }
 
 describe('expose', () => {
-  let unmute;
-
-  before(() => { unmute = mute(); });
-
-  after(() => { unmute(); });
-
   it('should only register the requested verbs', () => {
-    const app = new Koa();
+    const app = initApp();
     const model = getModel();
     const options = {
       verbs: ['get'],
@@ -39,18 +46,18 @@ describe('expose', () => {
 
     expose(app, model, options);
 
-    const router = app.middleware[0].router;
+    const router = app.middleware[1].router;
     expect(router.match('/add', 'GET').route).to.equal(true);
     expect(router.match('/sub', 'GET').route).to.equal(true);
   });
 
   it('should register all verbs if no verbs were specified', () => {
-    const app = new Koa();
+    const app = initApp();
     const model = getModel();
 
     expose(app, model);
 
-    const router = app.middleware[0].router;
+    const router = app.middleware[1].router;
 
     ['get', 'post'].forEach((verb) => {
       expect(router.match('/add', verb.toUpperCase()).route).to.equal(true);
@@ -59,7 +66,7 @@ describe('expose', () => {
   });
 
   it('should use the specified prefix', () => {
-    const app = new Koa();
+    const app = initApp();
     const model = getModel();
 
     const prefix = 'api';
@@ -69,7 +76,7 @@ describe('expose', () => {
 
     expose(app, model, options);
 
-    const router = app.middleware[0].router;
+    const router = app.middleware[1].router;
 
     ['get', 'post'].forEach((verb) => {
       expect(router.match(`/${prefix}/add`, verb.toUpperCase()).route).to.equal(true);
@@ -80,7 +87,7 @@ describe('expose', () => {
   it('should support an auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (10),
@@ -120,7 +127,7 @@ describe('expose', () => {
     // Define an authAdapter that returns a simple auth object
     //  Configure the method to skip auth step and allow handler
     //  Define one middleware fn that checks if auth handler ran
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (10),
@@ -161,7 +168,7 @@ describe('expose', () => {
       another_val: 20,
     };
 
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (val),
@@ -188,7 +195,7 @@ describe('expose', () => {
     const error = {
       error_val: 'raw_sync_whoops',
     };
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => {
@@ -216,7 +223,7 @@ describe('expose', () => {
   it('should support an async auth adapter with middleware', (done) => {
     // Define an authAdapter that returns a simple auth object
     //  Define one middleware fn to copy auth info to response body
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (10),
@@ -256,7 +263,7 @@ describe('expose', () => {
 
   it('should return an error when handler throws an error', (done) => {
     // Define a sync handler that throws an exception
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => {
@@ -279,7 +286,7 @@ describe('expose', () => {
   });
 
   it('should return success from an async handler', (done) => {
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: async () => (
@@ -307,7 +314,7 @@ describe('expose', () => {
 
   it('should return an error when handler throws an error inside a promise', (done) => {
     // Define an async function that throws a exception from inside a promise
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: async () => (
@@ -334,7 +341,7 @@ describe('expose', () => {
   it('should return an error when auth adapter throws an error', (done) => {
     // Define an authAdapter that throws an exception
     //  Define one middleware fn that should not run
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (10),
@@ -372,7 +379,7 @@ describe('expose', () => {
   it('should return an error when validation throws an error', (done) => {
     // Define an authAdapter that works correctly
     //  Define validation that throws an error
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: x => (x + 10),
@@ -410,7 +417,7 @@ describe('expose', () => {
   it('should return an error when any middleware throws an error', (done) => {
     // Define an authAdapter that works correctly
     //  Define one middleware fn that throws an error
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (10),
@@ -444,7 +451,7 @@ describe('expose', () => {
   });
 
   it('should allow sync middleware before running sync handler', (done) => {
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (500),
@@ -473,7 +480,7 @@ describe('expose', () => {
   });
 
   it('should allow sync middleware before running async handler', (done) => {
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: async () => (
@@ -508,7 +515,7 @@ describe('expose', () => {
   });
 
   it('should allow async middleware before running sync handler', (done) => {
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: () => (1000),
@@ -539,7 +546,7 @@ describe('expose', () => {
   });
 
   it('should allow async middleware before running async handler', (done) => {
-    const app = new Koa();
+    const app = initApp();
     const model = swatch({
       add: {
         handler: async () => (
