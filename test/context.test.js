@@ -1,15 +1,15 @@
 const chai = require('chai');
 
-const middleware = require('../lib/middleware');
+const context = require('../lib/context');
 
 const expect = chai.expect;
 
-describe('middleware', () => {
+describe('context', () => {
   it('should initialize the swatchCtx', (done) => {
     const options = {
       onException: () => ('mapped_error'),
     };
-    const fn = middleware.swatchCtx(options);
+    const fn = context.init(options);
 
     const ctx = {};
     fn(ctx, () => {
