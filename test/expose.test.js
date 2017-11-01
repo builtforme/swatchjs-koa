@@ -93,10 +93,10 @@ describe('expose', () => {
         handler: () => (10),
         metadata: {
           middleware: [
-            (ctx) => {
-              ctx.body = {
-                id: ctx.swatchCtx.auth.id,
-                auth: ctx.swatchCtx.auth.auth,
+            (swatchCtx) => {
+              swatchCtx.koaCtx().body = {
+                id: swatchCtx.auth.id,
+                auth: swatchCtx.auth.auth,
               };
             },
           ],
@@ -134,9 +134,9 @@ describe('expose', () => {
         metadata: {
           noAuth: true,
           middleware: [
-            (ctx) => {
-              ctx.body = {
-                exists: Boolean(ctx.swatchCtx.auth),
+            (swatchCtx) => {
+              swatchCtx.koaCtx().body = {
+                exists: Boolean(swatchCtx.auth),
               };
             },
           ],
@@ -229,10 +229,10 @@ describe('expose', () => {
         handler: () => (10),
         metadata: {
           middleware: [
-            (ctx) => {
-              ctx.body = {
-                id: ctx.swatchCtx.auth.id,
-                auth: ctx.swatchCtx.auth.auth,
+            (swatchCtx) => {
+              swatchCtx.koaCtx().body = {
+                id: swatchCtx.auth.id,
+                auth: swatchCtx.auth.auth,
               };
             },
           ],
@@ -347,10 +347,10 @@ describe('expose', () => {
         handler: () => (10),
         metadata: {
           middleware: [
-            (ctx) => {
-              ctx.body = {
-                id: ctx.swatchCtx.auth.id,
-                auth: ctx.swatchCtx.auth.auth,
+            (swatchCtx) => {
+              swatchCtx.koaCtx().body = {
+                id: swatchCtx.auth.id,
+                auth: swatchCtx.auth.auth,
               };
             },
           ],
@@ -450,35 +450,6 @@ describe('expose', () => {
       });
   });
 
-  it('should allow sync middleware before running sync handler', (done) => {
-    const app = initApp();
-    const model = swatch({
-      add: {
-        handler: () => (500),
-        metadata: {
-          middleware: [
-            (ctx, next) => {
-              ctx.swatchCtx.value = 2000;
-              next();
-            },
-          ],
-        },
-      },
-    });
-
-    expose(app, model);
-
-    request(http.createServer(app.callback()))
-      .get('/add')
-      .expect(200)
-      .end((err, res) => {
-        expect(err).to.equal(null);
-        expect(res.body.ok).to.equal(true);
-        expect(res.body.result).to.equal(500);
-        done();
-      });
-  });
-
   it('should allow sync middleware before running async handler', (done) => {
     const app = initApp();
     const model = swatch({
@@ -492,8 +463,8 @@ describe('expose', () => {
         ),
         metadata: {
           middleware: [
-            async (ctx, next) => {
-              ctx.swatchCtx.value = 3000;
+            async (swatchCtx, next) => {
+              swatchCtx.value = 3000;
               await next();
             },
           ],
@@ -521,9 +492,9 @@ describe('expose', () => {
         handler: () => (1000),
         metadata: {
           middleware: [
-            async (ctx, next) => {
+            async (swatchCtx, next) => {
               const result = await Promise.resolve(2000);
-              ctx.swatchCtx.value = result;
+              swatchCtx.value = result;
 
               await next();
             },
@@ -558,9 +529,9 @@ describe('expose', () => {
         ),
         metadata: {
           middleware: [
-            async (ctx, next) => {
+            async (swatchCtx, next) => {
               const result = await Promise.resolve(3000);
-              ctx.swatchCtx.value = result;
+              swatchCtx.value = result;
 
               await next();
             },
