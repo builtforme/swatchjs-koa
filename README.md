@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/builtforme/swatchjs-koa.svg?style=svg)](https://circleci.com/gh/builtforme/swatchjs-koa) | [![codecov](https://codecov.io/gh/builtforme/swatchjs-koa/branch/master/graph/badge.svg)](https://codecov.io/gh/builtforme/swatchjs-koa) | [![Coverage Status](https://coveralls.io/repos/github/builtforme/swatchjs-koa/badge.svg?branch=master)](https://coveralls.io/github/builtforme/swatchjs-koa?branch=master) | [![Known Vulnerabilities](https://snyk.io/test/github/builtforme/swatchjs-koa/badge.svg)](https://snyk.io/test/github/builtforme/swatchjs-koa)
 
-An adapter to expose [swatchjs]() via [KOA](https://www.npmjs.com/package/koa).
+An adapter to expose [swatchjs](https://www.npmjs.com/package/swatchjs) via [KOA](https://www.npmjs.com/package/koa).
 
 ## Quick start
 
@@ -191,6 +191,14 @@ function sampleOnException(error) {
   throw error;
 }
 ```
+
+### Middleware
+
+The [swatchjs](https://www.npmjs.com/package/swatchjs) package allows the creation of middleware
+functions to be executed before the API handler. Those middleware functions should be written
+in the style of KOA middleware, accepting a Swatch context object and a callback function.
+The Swatch context has a `ctx.req` property which contains the request parameters copied from
+the [KOA](http://koajs.com/#context) `request` context.
 
 ## Developers
 
