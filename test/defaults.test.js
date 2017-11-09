@@ -6,7 +6,8 @@ describe('defaults', () => {
     it('should include all default options', () => {
       const options = defaults();
       expect(options).to.be.an('object').that.has.all.keys(
-        'verbs', 'prefix', 'authAdapter', 'onException', 'rawResponse',
+        'verbs', 'prefix', 'authAdapter', 'onException',
+        'rawResponse', 'loggerRequestIdKey',
       );
     });
   });
@@ -104,6 +105,58 @@ describe('defaults', () => {
         expect(emptyCtx.body.error).to.equal('auth_error');
       });
     });
+
+    it('should handle an error in the async auth adapter with invalid logger ID', () => {
+      function authAdapter() {
+        throw new Error('auth_error');
+      }
+      const options = {
+        authAdapter,
+        loggerRequestIdKey: 'whoops',
+      };
+
+      let reqId = '';
+      let reqKey = '';
+      const emptyCtx = {
+        reqId: '1234567890',
+        set: (key, value) => {
+          reqKey = key;
+          reqId = value;
+        },
+      };
+      defaults(options).authAdapter(emptyCtx).then(() => {
+        expect(reqId).to.equal('');
+        expect(reqKey).to.equal('');
+        expect(emptyCtx.body.ok).to.equal(false);
+        expect(emptyCtx.body.error).to.equal('auth_error');
+      });
+    });
+
+    it('should handle an error in the async auth adapter with logger ID', () => {
+      function authAdapter() {
+        throw new Error('auth_error');
+      }
+      const options = {
+        authAdapter,
+        loggerRequestIdKey: 'reqId',
+      };
+
+      let reqId = '';
+      let reqKey = '';
+      const emptyCtx = {
+        reqId: '1234567890',
+        set: (key, value) => {
+          reqKey = key;
+          reqId = value;
+        },
+      };
+      defaults(options).authAdapter(emptyCtx).then(() => {
+        expect(reqId).to.equal('1234567890');
+        expect(reqKey).to.equal('x-swatch-request-id');
+        expect(emptyCtx.body.ok).to.equal(false);
+        expect(emptyCtx.body.error).to.equal('auth_error');
+      });
+    });
   });
 
   describe('onException', () => {
@@ -161,6 +214,40 @@ describe('defaults', () => {
 
     it('should default to false if not specified', () => {
       expect(defaults({}).rawResponse).to.equal(false);
+    });
+  });
+
+  describe('loggerRequestIdKey', () => {
+    it('should use the passed loggerRequestIdKey value', () => {
+      const options = {
+        loggerRequestIdKey: 'correlationId',
+      };
+      expect(defaults(options).loggerRequestIdKey).to.equal('correlationId');
+    });
+
+    it('should ignore an empty string', () => {
+      const options = {
+        loggerRequestIdKey: '',
+      };
+      expect(defaults(options).loggerRequestIdKey).to.equal(undefined);
+    });
+
+    it('should ignore a null input', () => {
+      const options = {
+        loggerRequestIdKey: null,
+      };
+      expect(defaults(options).loggerRequestIdKey).to.equal(undefined);
+    });
+
+    it('should ignore a non-string input', () => {
+      const options = {
+        loggerRequestIdKey: 10,
+      };
+      expect(defaults(options).loggerRequestIdKey).to.equal(undefined);
+    });
+
+    it('should default to undefined if not specified', () => {
+      expect(defaults({}).loggerRequestIdKey).to.equal(undefined);
     });
   });
 });
