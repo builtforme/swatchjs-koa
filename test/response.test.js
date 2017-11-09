@@ -10,9 +10,14 @@ const logger = bunyan.createLogger({
   streams: [{ path: '/dev/null' }],
 });
 
+const emptyOptions = {};
+const successHandlerFn = response.successResponse(emptyOptions);
+const errorHandlerFn = response.errorResponse(emptyOptions);
+
 function initCtx(onException) {
   return {
     body: {},
+    set: () => {},
     swatchCtx: {
       logger,
       request: {
@@ -23,14 +28,14 @@ function initCtx(onException) {
 }
 
 describe('response', () => {
-  it('should handle success responses', () => {
+  it('should handle success responses without request ID', () => {
     const ctx = initCtx(() => {});
     const result = {
       name: 'test',
       value: 'value',
     };
 
-    response.successResponse(ctx, result);
+    successHandlerFn(ctx, result);
 
     expect(ctx.body).to.deep.equal({
       ok: true,
@@ -42,7 +47,7 @@ describe('response', () => {
     const error = 'error_code';
     const ctx = initCtx((arg) => { throw arg; });
 
-    response.errorResponse(ctx, error);
+    errorHandlerFn(ctx, error);
 
     expect(ctx.body).to.deep.equal({
       ok: false,
@@ -57,7 +62,7 @@ describe('response', () => {
     const ctx = initCtx((arg) => { throw arg; });
     const errorObj = new Error(error);
 
-    response.errorResponse(ctx, errorObj);
+    errorHandlerFn(ctx, errorObj);
 
     expect(ctx.body).to.deep.equal({
       ok: false,
@@ -76,7 +81,7 @@ describe('response', () => {
       details,
     };
 
-    response.errorResponse(ctx, errorObj);
+    errorHandlerFn(ctx, errorObj);
 
     expect(ctx.body).to.deep.equal({
       ok: false,
@@ -97,7 +102,7 @@ describe('response', () => {
       details,
     };
 
-    response.errorResponse(ctx, errorObj);
+    errorHandlerFn(ctx, errorObj);
 
     expect(ctx.body).to.deep.equal({
       ok: false,
@@ -115,7 +120,7 @@ describe('response', () => {
     };
     const ctx = initCtx(() => ('its_actually_fine'));
 
-    response.errorResponse(ctx, errorObj);
+    errorHandlerFn(ctx, errorObj);
 
     expect(ctx.body).to.deep.equal({
       ok: true,
