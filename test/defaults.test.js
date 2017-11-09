@@ -7,7 +7,7 @@ describe('defaults', () => {
       const options = defaults();
       expect(options).to.be.an('object').that.has.all.keys(
         'verbs', 'prefix', 'authAdapter', 'onException',
-        'rawResponse', 'loggerRequestIdKey',
+        'rawResponse', 'requestIdProp',
       );
     });
   });
@@ -112,7 +112,7 @@ describe('defaults', () => {
       }
       const options = {
         authAdapter,
-        loggerRequestIdKey: 'whoops',
+        requestIdProp: 'whoops',
       };
 
       let reqId = '';
@@ -138,7 +138,7 @@ describe('defaults', () => {
       }
       const options = {
         authAdapter,
-        loggerRequestIdKey: 'reqId',
+        requestIdProp: 'reqId',
       };
 
       let reqId = '';
@@ -217,37 +217,37 @@ describe('defaults', () => {
     });
   });
 
-  describe('loggerRequestIdKey', () => {
-    it('should use the passed loggerRequestIdKey value', () => {
+  describe('requestIdProp', () => {
+    it('should use the passed requestIdProp value', () => {
       const options = {
-        loggerRequestIdKey: 'correlationId',
+        requestIdProp: 'correlationId',
       };
-      expect(defaults(options).loggerRequestIdKey).to.equal('correlationId');
+      expect(defaults(options).requestIdProp).to.equal('correlationId');
     });
 
     it('should ignore an empty string', () => {
       const options = {
-        loggerRequestIdKey: '',
+        requestIdProp: '',
       };
-      expect(defaults(options).loggerRequestIdKey).to.equal(undefined);
+      expect(defaults(options).requestIdProp).to.equal(undefined);
     });
 
     it('should ignore a null input', () => {
       const options = {
-        loggerRequestIdKey: null,
+        requestIdProp: null,
       };
-      expect(defaults(options).loggerRequestIdKey).to.equal(undefined);
+      expect(defaults(options).requestIdProp).to.equal(undefined);
     });
 
     it('should ignore a non-string input', () => {
       const options = {
-        loggerRequestIdKey: 10,
+        requestIdProp: 10,
       };
-      expect(defaults(options).loggerRequestIdKey).to.equal(undefined);
+      expect(defaults(options).requestIdProp).to.equal(undefined);
     });
 
     it('should default to undefined if not specified', () => {
-      expect(defaults({}).loggerRequestIdKey).to.equal(undefined);
+      expect(defaults({}).requestIdProp).to.equal(undefined);
     });
   });
 });

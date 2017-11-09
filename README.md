@@ -123,14 +123,14 @@ example above) which takes the following parameters:
 
 The `options` object has the following properties:
 
-| Property         | Example   | Default value     | Description   |
-|:---              |:---       |:---               |:---           |
-|`verbs`           |`['get']`  |`['get','post']`   | An array with a list of enabled HTTP verbs. Each verb must be a string. |
-|`prefix`          |`'api'`    |`''`               | A URL prefix to be added to every route. For example, if the value of this option is `'product'`, then the URL of all APIs will start with `/product/`.   |
-|`authAdapter`     |`fn`       |See below          | A function to perform authentication and extract credentials from a request. |
-|`onException`     |`fn`       |See below          | A function to catch any exception and optionally rescue before returning an error. |
-|`rawResponse`     |`boolean`  |`false`            | Returns the raw response object without the `{ ok: true }` or `{ ok: false }` wrapper. |
-|`loggerRequestIdKey` |`string`   |`undefined`     | A string matching the koa-bunyan-logger key for `requestIdContext`.`prop` parameter. If present, the request ID will be returned in `x-swatch-request-id` response header. If empty, no header will be set. |
+| Property     | Example   | Default value     | Description   |
+|:---          |:---       |:---               |:---           |
+|`verbs`       |`['get']`  |`['get','post']`   | An array with a list of enabled HTTP verbs. Each verb must be a string. |
+|`prefix`      |`'api'`    |`''`               | A URL prefix to be added to every route. For example, if the value of this option is `'product'`, then the URL of all APIs will start with `/product/`.   |
+|`authAdapter` |`fn`       |See below          | A function to perform authentication and extract credentials from a request. |
+|`onException` |`fn`       |See below          | A function to catch any exception and optionally rescue before returning an error. |
+|`rawResponse` |`boolean`  |`false`            | Returns the raw response object without the `{ ok: true }` or `{ ok: false }` wrapper. |
+|`requestIdProp`|`string`  |`undefined`        | A string matching the koa-bunyan-logger key for `requestIdContext`.`prop` parameter. If present, the request ID will be returned in `x-swatch-request-id` response header. If empty, no header will be set. |
 
 ### The `authAdapter` function
 
@@ -193,7 +193,7 @@ function sampleOnException(error) {
 }
 ```
 
-### The `loggerRequestIdKey` parameter
+### The `requestIdProp` parameter
 
 Clients can use the [koa-bunyan-logger](https://www.npmjs.com/package/koa-bunyan-logger) package
 to configure a request logger for their service. That package exposes a `requestIdContext` function
