@@ -10,6 +10,7 @@ The following exposes the simple API from the `swatchjs`'s README file:
 
 ```javascript
 // Application server
+const Koa = require('koa');
 const swatch = require('swatchjs');
 const swatchKoa = require('swatchjs-koa');
 
@@ -18,8 +19,10 @@ const model = swatch({
     "numbers.sub": (a, b) => Number(a) - Number(b),
 });
 
-const app = Koa();
+const app = new Koa();
 swatchKoa(app, model);
+
+app.listen(3000);
 ```
 
 That's it! No HTTP headers, status codes, or any other distracting verbiage.
