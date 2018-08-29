@@ -35,7 +35,7 @@ describe('response', () => {
   it('should handle success response with no request ID', () => {
     // Try to find a koa request id or a client request id but none exist
     //  In this case we should not try to set a response header with a value
-    const ctx = initCtx(() => {}));
+    const ctx = initCtx(() => {});
     const result = {
       name: 'test',
       value: 'value',
