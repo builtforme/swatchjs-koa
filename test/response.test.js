@@ -1,4 +1,5 @@
 const bunyan = require('bunyan');
+const sinon = require('sinon');
 const { expect } = require('chai');
 
 const response = require('../lib/response');
@@ -8,14 +9,19 @@ const logger = bunyan.createLogger({
   streams: [{ path: '/dev/null' }],
 });
 
+const requestIdProp = 'x-test-prop';
+const testRequestId = 'test-request-guid';
+
 const emptyOptions = {};
-const successHandlerFn = response.successResponse(emptyOptions);
+const requestPropOptions = { requestIdProp };
+
 const errorHandlerFn = response.errorResponse(emptyOptions);
 
-function initCtx(onException) {
+function initCtx(onException, requestId) {
   return {
     body: {},
-    set: () => {},
+    [requestIdProp]: requestId,
+    set: sinon.stub(),
     swatchCtx: {
       logger,
       request: {
@@ -26,19 +32,40 @@ function initCtx(onException) {
 }
 
 describe('response', () => {
-  it('should handle success responses without request ID', () => {
-    const ctx = initCtx(() => {});
+  it('should handle success response with no request ID', () => {
+    // Try to find a koa request id or a client request id but none exist
+    //  In this case we should not try to set a response header with a value
+    const ctx = initCtx(() => {}));
     const result = {
       name: 'test',
       value: 'value',
     };
 
-    successHandlerFn(ctx, result);
+    response.successResponse(requestPropOptions)(ctx, result);
 
     expect(ctx.body).to.deep.equal({
       ok: true,
       result,
     });
+    expect(ctx.set.called).to.equal(false);
+  });
+
+  it('should handle success response with koa request guid', () => {
+    // Successfully find a koa request id but no client request id
+    //  In this case the koa request id should be set in the response
+    const ctx = initCtx(() => {}, testRequestId);
+    const result = {
+      name: 'test',
+      value: 'value',
+    };
+
+    response.successResponse(requestPropOptions)(ctx, result);
+
+    expect(ctx.body).to.deep.equal({
+      ok: true,
+      result,
+    });
+    expect(ctx.set.calledWith('x-swatch-request-id', testRequestId)).to.equal(true);
   });
 
   it('should handle error string responses', () => {
@@ -52,6 +79,7 @@ describe('response', () => {
       error,
       details: undefined,
     });
+    expect(ctx.set.called).to.equal(false);
   });
 
   it('should handle error object responses', () => {
