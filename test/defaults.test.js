@@ -1,4 +1,5 @@
-const expect = require('chai').expect;
+const { expect } = require('chai');
+
 const defaults = require('../lib/defaults');
 
 describe('defaults', () => {

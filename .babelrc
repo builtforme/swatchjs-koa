@@ -3,7 +3,7 @@
     "transform-runtime"
   ],
   "presets": [
-    "es2015",
+    "env",
     "stage-3",
   ]
 }

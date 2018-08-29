@@ -1,8 +1,6 @@
-const chai = require('chai');
+const { expect } = require('chai');
 
 const context = require('../lib/context');
-
-const expect = chai.expect;
 
 describe('context', () => {
   it('should initialize the swatchCtx', (done) => {

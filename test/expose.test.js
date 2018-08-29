@@ -2,14 +2,13 @@ const Koa = require('koa');
 const koaBunyanLogger = require('koa-bunyan-logger');
 
 const bunyan = require('bunyan');
-const chai = require('chai');
 const http = require('http');
 const swatch = require('swatchjs');
 const request = require('supertest');
 
-const expose = require('../lib/expose');
+const { expect } = require('chai');
 
-const expect = chai.expect;
+const expose = require('../lib/expose');
 
 const silentLogger = bunyan.createLogger({
   name: 'swatch-koa-test',
@@ -46,7 +45,7 @@ describe('expose', () => {
 
     expose(app, model, options);
 
-    const router = app.middleware[1].router;
+    const { router } = app.middleware[1];
     expect(router.match('/add', 'GET').route).to.equal(true);
     expect(router.match('/sub', 'GET').route).to.equal(true);
   });
@@ -57,8 +56,7 @@ describe('expose', () => {
 
     expose(app, model);
 
-    const router = app.middleware[1].router;
-
+    const { router } = app.middleware[1];
     ['get', 'post'].forEach((verb) => {
       expect(router.match('/add', verb.toUpperCase()).route).to.equal(true);
       expect(router.match('/sub', verb.toUpperCase()).route).to.equal(true);
@@ -76,8 +74,7 @@ describe('expose', () => {
 
     expose(app, model, options);
 
-    const router = app.middleware[1].router;
-
+    const { router } = app.middleware[1];
     ['get', 'post'].forEach((verb) => {
       expect(router.match(`/${prefix}/add`, verb.toUpperCase()).route).to.equal(true);
       expect(router.match(`/${prefix}/sub`, verb.toUpperCase()).route).to.equal(true);
