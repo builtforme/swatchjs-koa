@@ -200,16 +200,21 @@ function sampleOnException(error) {
 
 Clients can use the [koa-bunyan-logger](https://www.npmjs.com/package/koa-bunyan-logger) package
 to configure a request logger for their service. That package exposes a `requestIdContext` function
-that will generate a unique ID for each request to be included in the output logs. The unique ID is
-saved on the KOA context object under a key you can specify with the `prop` parameter, with a
-default value of `reqId`. See that package documentation for details.
+that generates a unique ID for each request to correlate related log messages. The unique ID is
+saved on the KOA context object under a key you can override with the `prop` parameter (the default
+value is `reqId`. See that package documentation for details.)
 
-Currently, `swatchjs-koa` supports this request logger as a part of the `swatchCtx`. To provide
-additional debugging support, users can have the unique request ID included as a response header
-named `x-swatchjs-request-id`. To enable this header, set the `loggerRequestId` property in the
+The `swatchjs-koa` package uses this bunyan logger as a part of the `swatchCtx`. To provide
+additional debugging support, clients can request that the unique ID be returned in a response
+header: `x-swatch-request-id`. To enable this behavior, set the `loggerRequestId` property in the
 `swatchjs-koa` configuration to a string that matches the `prop` parameter passed into the
-`koa-bunyan-logger` configuration. This will allow `swatchjs-koa` to find the request ID parameter
-from the KOA context. If not set, the header will not be included in the response.
+`koa-bunyan-logger` configuration. This will allow `swatchjs-koa` to look up the request ID
+value from the KOA context. If not set, the header will not be included in the response.
+
+Additionally, if the `loggerRequestId` property is set in the `swatchjs-koa` configuration, the
+caller can choose to pass in their own request ID in the request headers. Simply make an API
+request to a swatch endpoint and pass in any value under the `x-swatch-request-id` header, and
+it will overwrite the bunyan logger request guid with the client guid to be included in all logs.
 
 ### Middleware
 
